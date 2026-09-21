@@ -1,0 +1,111 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Design tokens — "Inside the Machine" premium automotive showcase.
+   Near-black charcoal stage, a single restrained ice-blue accent, chrome/glass
+   cue colours, a modular type scale and a spacing scale.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Background scale: deep charcoal stage */
+  --bg-0: #06070a;
+  --bg-1: #0b0d12;
+  --bg-2: #12151c;
+
+  /* Surface / elevation */
+  --surface-0: rgba(255, 255, 255, 0.03);
+  --surface-1: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.1);
+
+  /* Single restrained accent — ice blue */
+  --accent: #6fd6ff;
+  --accent-dim: #2b8bb5;
+  --accent-glow: rgba(111, 214, 255, 0.35);
+
+  /* Chrome / glass cue colours */
+  --chrome: #d7dde6;
+  --chrome-dim: #8b94a3;
+  --glass: rgba(215, 221, 230, 0.08);
+  --glass-border: rgba(215, 221, 230, 0.16);
+
+  /* Foreground / text */
+  --fg-0: #f2f5f9;
+  --fg-1: #b9c1cd;
+  --fg-2: #7c8593;
+
+  /* Semantic */
+  --danger: #ff5d5d;
+  --warn: #ffb454;
+
+  /* Typography — display face for headings, neutral body face */
+  --font-display: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Modular type scale (clamp for fluid responsiveness) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.05rem, 1vw + 0.8rem, 1.25rem);
+  --text-xl: clamp(1.35rem, 1.5vw + 0.9rem, 1.9rem);
+  --text-2xl: clamp(1.8rem, 2.5vw + 1rem, 2.75rem);
+  --text-3xl: clamp(2.4rem, 4vw + 1rem, 4.25rem);
+  --text-display: clamp(3rem, 7vw + 1rem, 7.5rem);
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.14em;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 9rem;
+
+  /* Radii, borders, shadows */
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --hairline: 1px solid var(--glass-border);
+  --shadow-lg: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  --shadow-accent: 0 0 40px -8px var(--accent-glow);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+
+  /* Layout */
+  --z-canvas: 0;
+  --z-content: 10;
+  --z-hud: 20;
+  --z-loader: 100;
+  --content-max: 78rem;
+}
+
+/* Honour the user's motion preference globally. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+assets-incoming/
+coverage
+*.local
+.vite
+.DS_Store
+*.log
+.eslintcache
+
+# Pre-existing, unrelated sibling content in the workspace root that must not be
+# committed into the car-engineering-3d repo (outside this task's scope).
+auto-engineering-3d/
+New folder/
+.claude/

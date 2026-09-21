@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Inside the Machine — an interactive, scroll-driven 3D exploration of automotive engineering: suspension, engine, transmission, brakes and air conditioning, exploded and animated in real time."
+    />
+    <meta name="theme-color" content="#06070a" />
+    <title>Inside the Machine — Automotive Engineering in 3D</title>
+
+    <!-- Typography: display face (headings) + neutral body face -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Charcoal background before React mounts: no white flash -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background-color: #06070a;
+        color-scheme: dark;
+      }
+      #root {
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
