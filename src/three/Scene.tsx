@@ -5,8 +5,7 @@ import { QualityGate } from '@/three/QualityGate'
 import Lighting, { MaterialQualityBridge } from '@/three/Lighting'
 import Stage from '@/three/Environment'
 import Effects from '@/three/Effects'
-import { BodyShellWithFallback } from '@/three/body/ProceduralBodyShell'
-import Wheels from '@/three/body/Wheels'
+import { LaFerrariBody } from '@/three/body/LaFerrariBody'
 import { BODY_ANCHORS } from '@/three/body/bodyAnchors'
 import HotspotLayer from '@/three/hotspots/HotspotLayer'
 import { useAppStore } from '@/state/useAppStore'
@@ -86,17 +85,18 @@ function ChapterMount({ chapter, children }: { chapter: ChapterId; children: Rea
 function LazySystem({
   chapter,
   System,
+  xRayMode,
+  manualExplode,
 }: {
   chapter: ChapterId
   System: ComponentType<SystemProps>
+  xRayMode: boolean
+  manualExplode: number
 }) {
   return (
     <ChapterMount chapter={chapter}>
       <Suspense fallback={null}>
-        {/* TODO(phase-3): remove xRayMode/manualExplode props — the systems still
-            declare them; tasks 8/9 will make them optional and scroll-driven.
-            `manualExplode` is typed number, so the frozen value is 0 (not false). */}
-        <System xRayMode={false} manualExplode={0} />
+        <System xRayMode={xRayMode} manualExplode={manualExplode} />
       </Suspense>
     </ChapterMount>
   )
@@ -158,7 +158,13 @@ const AIRCON_HOTSPOTS = [
   { part: 'ac.compressor', position: at(A.engineBayCenter, -BAY_HALF_X * 0.6, 0.06, 0.34), label: 'Variable Swashplate Compressor' },
 ] as const
 
-export function Scene() {
+export function Scene({
+  xRayMode = false,
+  manualExplode = 0,
+}: {
+  xRayMode?: boolean
+  manualExplode?: number
+}) {
   return (
     <>
       {/* Cinematic camera choreography, driven by scroll through progressBus */}
@@ -174,24 +180,17 @@ export function Scene() {
         {/* HDRI image-based lighting + asphalt floor; carries its own Suspense */}
         <Stage />
 
-        {/* The car. GltfBodyShell suspends while the GLB streams, hence the
-            boundary; hideWheels because <Wheels/> below owns the rolling stock
-            (two wheel sets would z-fight and double the brake-chapter geometry). */}
+        {/* The hyper-realistic Ferrari LaFerrari body & factory wheels */}
         <Suspense fallback={null}>
-          <BodyShellWithFallback hideWheels />
+          <LaFerrariBody xRayMode={xRayMode} manualExplode={manualExplode} />
         </Suspense>
 
-        {/* Procedural wheels on the measured anchors — mounted under this
-            UNROTATED group; Wheels writes rotation.y (steer) / rotation.x (spin)
-            directly and assumes local +X is the axle. */}
-        <Wheels />
-
         {/* Five mechanism systems, lazy + chapter-gated */}
-        <LazySystem chapter="engine" System={EngineSystem} />
-        <LazySystem chapter="transmission" System={TransmissionSystem} />
-        <LazySystem chapter="suspension" System={SuspensionSystem} />
-        <LazySystem chapter="brakes" System={BrakeSystem} />
-        <LazySystem chapter="aircon" System={AirconSystem} />
+        <LazySystem chapter="engine" System={EngineSystem} xRayMode={xRayMode} manualExplode={manualExplode} />
+        <LazySystem chapter="transmission" System={TransmissionSystem} xRayMode={xRayMode} manualExplode={manualExplode} />
+        <LazySystem chapter="suspension" System={SuspensionSystem} xRayMode={xRayMode} manualExplode={manualExplode} />
+        <LazySystem chapter="brakes" System={BrakeSystem} xRayMode={xRayMode} manualExplode={manualExplode} />
+        <LazySystem chapter="aircon" System={AirconSystem} xRayMode={xRayMode} manualExplode={manualExplode} />
 
         {/* Hotspot markers — the 12 PartIds wired in partDetails.ts */}
         <HotspotLayer chapter="engine" parts={[...ENGINE_HOTSPOTS]} />

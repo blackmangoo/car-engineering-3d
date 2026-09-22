@@ -1,6 +1,6 @@
 import { Box3, Group, Vector3 } from 'three'
 import type { Mesh, Object3D } from 'three'
-import { TARGET_WHEELBASE } from '@/three/body/bodyAnchors'
+import { DRIVER_SIDE_X, TARGET_WHEELBASE } from '@/three/body/bodyAnchors'
 import type { BodyAnchors } from '@/three/body/bodyAnchors'
 import type { Vec3Tuple } from '@/types'
 
@@ -50,7 +50,15 @@ export const CULL_DENYLIST = [
 ] as const
 
 /** Tokens identifying the rolling stock of one wheel corner. */
-const TYRE_TOKENS = ['tire', 'tyre', 'wheel', 'rim'] as const
+const TYRE_TOKENS = ['tire', 'tyre', 'wheel'] as const
+/**
+ * `rim` is deliberately NOT in {@link TYRE_TOKENS}. At three characters it is
+ * the only ambiguous token in the set: as a bare substring it also matches
+ * `trim`, so `chrome_trim` / `steering_trim` / `body_trim` would be classified
+ * as rolling stock. {@link isTyrePart} therefore tests `rim` against WORD
+ * boundaries instead — see below.
+ */
+const RIM_TOKEN = 'rim'
 
 /** Tokens identifying lamp clusters (head lights, tail lights, DRLs, LEDs). */
 const LAMP_TOKENS = ['light', 'lamp', 'led'] as const
@@ -64,6 +72,25 @@ const HALF_PI = Math.PI / 2
 /** Lower-case, alphanumeric-only form of a name — matches how GLTFLoader sanitises. */
 function key(name: string | null | undefined): string {
   return (name ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+/**
+ * Lower-case WORDS of a name, split on separators and on camelCase boundaries.
+ * `rim_fl` → `['rim','fl']`, `Rim.RR` → `['rim','rr']`, `frontRim` →
+ * `['front','rim']`, `chrome_trim` → `['chrome','trim']`. Needed because
+ * `key()` deliberately destroys the separators that make `rim` recognisable.
+ */
+function wordsOf(name: string | null | undefined): string[] {
+  return (name ?? '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+}
+
+/** True when a word IS `rim` or is prefixed by it (`rim`, `rim1`, `rimfl`). */
+function isRimWord(word: string): boolean {
+  return word === RIM_TOKEN || word.startsWith(RIM_TOKEN)
 }
 
 /** True when `name` matches any entry of `CULL_DENYLIST` (case-insensitive substring). */
@@ -115,11 +142,22 @@ export function wheelCornerFromName(name: string | null | undefined): WheelCorne
   return null
 }
 
-/** True when the name identifies part of a wheel/tyre assembly. */
+/**
+ * True when the name identifies part of a wheel/tyre assembly.
+ *
+ * `tire` / `tyre` / `wheel` are ≥ 4 characters and unambiguous, so a substring
+ * test is correct and cheap for them. `rim` is matched per WORD instead, which
+ * is what keeps `chrome_trim` (body brightwork) from being mistaken for rolling
+ * stock. That distinction matters in three places: `findWheelCorners`' quadrant
+ * fallback would try to steer a trim strip, `cornerTyreBox` would inflate the
+ * measured wheel radius/width, and `measureAnchors`' undertray pass would drop a
+ * trim mesh that is genuinely a candidate for the engine-bay floor.
+ */
 export function isTyrePart(name: string | null | undefined): boolean {
   const n = key(name)
-  if (n.length === 0) return false
-  return TYRE_TOKENS.some((token) => n.includes(token))
+  if (n.length === 0 || n.includes('steering')) return false
+  if (TYRE_TOKENS.some((token) => n.includes(token))) return true
+  return wordsOf(name).some(isRimWord)
 }
 
 /** Triangle count of every mesh at or below `root`. Non-indexed geometry counts position/3. */
@@ -277,7 +315,14 @@ export function findWheelCorners(root: Object3D): Partial<Record<WheelCorner, Ob
     // sign of the position along the length axis detected below.
     const box = unionBox([mesh])
     const frontBack = box.getCenter(_centre).z >= 0 ? 'F' : 'R'
-    const side = _pos.x >= 0 ? 'R' : 'L'
+    // +X is the DRIVER's side, which for this left-hand-drive contract is the
+    // car's LEFT — that is what `DRIVER_SIDE_X` encodes, what the named path
+    // above produces, and what the measured `wheelFL.x = +0.8555` confirms.
+    // Multiplying by `DRIVER_SIDE_X` keeps this branch from drifting if the
+    // handedness ever changes. (It used to read `>= 0 ? 'R' : 'L'`, which
+    // mirrored every corner and made `Wheels.tsx` steer the REAR axle on any
+    // model with no corner labels.)
+    const side = _pos.x * DRIVER_SIDE_X >= 0 ? 'L' : 'R'
     const corner = (frontBack + side) as WheelCorner
     if (named[corner] === undefined) named[corner] = mesh
   }

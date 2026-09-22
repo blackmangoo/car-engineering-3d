@@ -199,3 +199,24 @@
   z-index: var(--z-hud);
   pointer-events: auto;
 }
+
+/* Responsive adjustments so UI never blocks on any screen width */
+@media (max-width: 900px) {
+  .apex-nav {
+    display: none;
+  }
+  .apex-header {
+    padding: 8px 16px;
+  }
+  .apex-chapter-card {
+    top: 54px !important;
+    left: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 8px 14px !important;
+  }
+  .apex-chapter-card p,
+  .apex-chapter-card div:last-child {
+    display: none !important;
+  }
+}

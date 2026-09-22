@@ -3,6 +3,7 @@ import { CHAPTERS } from '@/scroll/chapters'
 import { ScrollRig } from '@/scroll/ScrollRig'
 import { Scene } from '@/three/Scene'
 import { useAppStore } from '@/state/useAppStore'
+import { Hud } from '@/ui/Hud'
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
@@ -72,7 +73,10 @@ export default function App() {
       {/* ── 2. DOM SCROLL ENGINE (GSAP ScrollTrigger → progressBus) ─────────── */}
       <ScrollRig />
 
-      {/* ── 3. SCROLL TRACK SECTIONS (transparent DOM height for ScrollTrigger) */}
+      {/* ── 3. NON-BLOCKING LUXURY AUTOMOTIVE HUD ───────────────────────────── */}
+      <Hud />
+
+      {/* ── 4. SCROLL TRACK SECTIONS (transparent DOM height for ScrollTrigger) */}
       <main className="content-layer">
         {CHAPTERS.map((chapter) => (
           <section
