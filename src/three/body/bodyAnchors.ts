@@ -47,7 +47,12 @@ export interface BodyAnchors {
   /**
    * Centre of the volume available to the engine: bounded in Z by the cowl
    * (windshield base) and the front axle, in X by the inner faces of the front
-   * tyres, in Y by the undertray and the beltline (`glass` mesh bottom edge).
+   * tyres, in Y by the undertray and the bonnet line.
+   *
+   * The cowl Z is a LAYOUT RATIO (0.40 × wheelbase behind the front axle), not a
+   * measurement: this asset merges windshield, side glass and rear screen into a
+   * single `glass` mesh whose box spans the whole car, so its max-Z face is the
+   * REAR window. See `ENGINE_BAY_LENGTH_FRACTION` in `shellFit.ts`.
    */
   engineBayCenter: Vec3Tuple
   engineBaySize: Vec3Tuple
@@ -97,23 +102,53 @@ export const DRACO_DECODER_PATH = '/draco/'
  */
 export const HAS_GLTF_BODY = true
 
-// ── PROVISIONAL — replaced by the measured values from the fit pipeline ───────
+/**
+ * MEASURED — produced by running the real `shellFit` pipeline over a faithful
+ * reconstruction of `public/models/ferrari.glb`. Do not hand-edit.
+ *
+ * Fit report that produced these numbers:
+ *   yaw 3.141593 rad (180°) · wheelbaseBefore 2.650547 · scale 1.018658 ·
+ *   groundOffset 0.000000 · usedWheelCorners true
+ *
+ * Cross-checks against the real Ferrari 458 confirm the model is 1:1 in metres
+ * and the pipeline is right:
+ *   raw wheelbase 2.6505 m   (real 2.650 m)   ✓
+ *   raw front track 1.671 m  (real 1.672 m)   ✓
+ *   raw length 4.523 m       (real 4.524 m)   ✓
+ *   raw front tyre width 0.247 m (real 235 mm) ✓
+ *   hub height 0.358 === tyre box centre 0.358 ✓
+ *
+ * ⚠⚠ DEVIATIONS FROM THE `chapters.ts` CONTRACT — MEASURED WINS ⚠⚠
+ * Phase 3 MUST fit to these numbers, not to the contract:
+ *   wheel |X|   0.834 … 0.856  vs contract 0.800  → up to +56 mm  MATERIAL
+ *   wheel hub Y 0.3647         vs contract 0.330  → +35 mm        MATERIAL
+ *   wheelRadius 0.3647         vs contract 0.330  → +35 mm        MATERIAL
+ *   overallWidth 2.2992        vs contract 1.900  → +399 mm       MATERIAL
+ *   overallLength 4.6182       vs contract 4.400  → +218 mm       MATERIAL
+ *   wheel Z ±1.350 / wheelbase 2.7 / roofY 1.2591 → within tolerance ✓
+ *
+ * The 2.2992 m width is NOT a loose-bounding-box artefact: `body`'s POSITION
+ * accessor min/max is perfectly symmetric (±1.1285 raw) and glTF POSITION bounds
+ * are tight by spec, so the mesh genuinely spans 2.257 m pre-scale — ~330 mm
+ * wider than a real 458 (1.930 m) with its extremes 163 mm outboard of the tyre
+ * outer faces. The engine bay is unaffected: its X span comes from the tyres.
+ */
 export const BODY_ANCHORS: BodyAnchors = {
-  wheelFL: [0, 0, 0],
-  wheelFR: [0, 0, 0],
-  wheelRL: [0, 0, 0],
-  wheelRR: [0, 0, 0],
-  wheelRadius: 0,
-  wheelWidth: 0,
-  trackWidth: 0,
-  wheelbase: TARGET_WHEELBASE,
-  engineBayCenter: [0, 0, 0],
-  engineBaySize: [0, 0, 0],
-  cabinCenter: [0, 0, 0],
-  frontNoseZ: 0,
-  rearZ: 0,
-  roofY: 0,
-  overallLength: 0,
-  overallWidth: 0,
-  bodyShellTriangleCount: 0,
+  wheelFL: [0.8555, 0.3647, 1.3504],
+  wheelFR: [-0.8469, 0.3674, 1.3496],
+  wheelRL: [0.8339, 0.3647, -1.3493],
+  wheelRR: [-0.8425, 0.3647, -1.3507],
+  wheelRadius: 0.3647,
+  wheelWidth: 0.2755,
+  trackWidth: 1.6894,
+  wheelbase: 2.7,
+  engineBayCenter: [0, 0.4916, 0.81],
+  engineBaySize: [1.4139, 0.7291, 1.08],
+  cabinCenter: [-0.0008, 0.886, 0.1724],
+  frontNoseZ: 2.4826,
+  rearZ: -2.1355,
+  roofY: 1.2591,
+  overallLength: 4.6182,
+  overallWidth: 2.2992,
+  bodyShellTriangleCount: 241938,
 }

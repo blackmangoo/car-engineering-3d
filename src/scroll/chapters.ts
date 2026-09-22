@@ -6,24 +6,28 @@ import type { ChapterDef, ChapterId } from '@/types'
  * ─────────────────────────────────────────────────────────────────────────────
  * Origin: ground level, vehicle centre (midpoint of the wheelbase, on the
  *         centreline, at y = 0 where the tyres touch the floor).
- * Axes:   +X = vehicle right (passenger side in a LHD car)
+ * Axes:   +X = DRIVER's side (left, LHD model — `DRIVER_SIDE_X = 1` in
+ *          `@/three/body/bodyAnchors`; `wheelFL` sits at +X)
  *         +Y = up
  *         +Z = forward, toward the nose
- * Envelope (canonical): 4.4 m long (Z) × 1.9 m wide (X) × 1.3 m tall (Y)
- * Wheelbase: 2.7 m   ·   Layout: front-engine, rear-wheel drive (RWD)
+ * Envelope (measured, `BODY_ANCHORS`): 4.6182 m long (Z) × 2.2992 m wide (X,
+ *         mirrors included — bodywork ≈ 1.95 m) × 1.2591 m tall (Y)
+ * Wheelbase: 2.7 m   ·   Layout: FRONT-mid engine, rear-wheel drive (RWD)
  *
- * Anchors (x, y, z):
- *   front wheels        (±0.80, 0.33, +1.35)
- *   rear wheels         (±0.80, 0.33, -1.35)
- *   engine              (0.00, 0.72, +0.85)
+ * Anchors (x, y, z) — measured values win over these contract approximations;
+ * see `@/three/body/bodyAnchors`:
+ *   front wheels        (±0.85, 0.365, +1.35)   [wheelFL at +X]
+ *   rear wheels         (±0.84, 0.365, -1.35)
+ *   engine bay centre   (0.00, 0.49, +0.81)  — FRONT of the car
  *   transmission        (0.00, 0.62, -0.10)  extending back to z = -0.75
  *   differential        (0.00, 0.45, -1.35)
  *   AC condenser        (0.00, 0.60, +1.95)
  *   AC evaporator/blower(0.00, 0.85, +0.35)
- *   brake master cyl.   (-0.45, 0.80, +1.30)
+ *   brake master cyl.   (+0.45, 0.80, +1.30)  — driver's side is +X here
  *
  * Camera path continuity: chapter N's `camera.from` equals chapter N-1's
- * `camera.to`, so interpolating position across boundaries is seamless.
+ * `camera.to`, and `outro.to` equals `hero.from`, so interpolating position
+ * across boundaries is seamless and the path loops.
  * Progress convention: within every chapter the EXPLODE occupies progress
  * 0 → 0.55 and the MECHANISM cycle occupies 0.55 → 1, hence every chapter
  * uses mechanism = { start: 0.55, end: 1 }.
@@ -39,7 +43,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'The Complete Machine',
     system: null,
     vh: 150,
-    camera: { from: [4.8, 1.8, 4.6], to: [4.2, 1.5, 3.8], target: [0, 0.45, 0], fov: 35 },
+    camera: { from: [5.5, 2.2, 6.5], to: [4.0, 1.6, 5.0], target: [0, 0.7, 0], fov: 35 },
     mechanism: MECHANISM,
   },
   {
@@ -48,7 +52,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Beneath the Skin',
     system: null,
     vh: 200,
-    camera: { from: [4.2, 1.5, 3.8], to: [3.4, 1.6, 2.8], target: [0, 0.45, 0], fov: 38 },
+    camera: { from: [4.0, 1.6, 5.0], to: [3.2, 1.4, 3.6], target: [0, 0.7, 0], fov: 38 },
     mechanism: MECHANISM,
   },
   {
@@ -57,7 +61,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Suspension',
     system: 'suspension',
     vh: 280,
-    camera: { from: [3.4, 1.6, 2.8], to: [1.8, 0.75, 2.0], target: [0.75, 0.35, 1.35], fov: 40 },
+    camera: { from: [3.2, 1.4, 3.6], to: [2.0, 0.9, 2.2], target: [0.8, 0.45, 1.35], fov: 40 },
     mechanism: MECHANISM,
   },
   {
@@ -66,7 +70,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Engine',
     system: 'engine',
     vh: 320,
-    camera: { from: [1.8, 0.75, 2.0], to: [1.5, 1.3, -0.2], target: [0, 0.5, -0.65], fov: 38 },
+    camera: { from: [2.0, 0.9, 2.2], to: [1.7, 1.3, 2.0], target: [0, 0.75, 0.85], fov: 38 },
     mechanism: MECHANISM,
   },
   {
@@ -75,7 +79,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Transmission',
     system: 'transmission',
     vh: 280,
-    camera: { from: [1.5, 1.3, -0.2], to: [1.3, 0.8, -0.9], target: [0, 0.4, -1.35], fov: 40 },
+    camera: { from: [1.7, 1.3, 2.0], to: [1.6, 0.9, 0.6], target: [0, 0.6, -0.3], fov: 40 },
     mechanism: MECHANISM,
   },
   {
@@ -84,7 +88,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Brakes',
     system: 'brakes',
     vh: 260,
-    camera: { from: [1.3, 0.8, -0.9], to: [1.5, 0.55, 1.8], target: [0.78, 0.33, 1.35], fov: 42 },
+    camera: { from: [1.6, 0.9, 0.6], to: [1.5, 0.6, 1.9], target: [0.8, 0.33, 1.35], fov: 42 },
     mechanism: MECHANISM,
   },
   {
@@ -93,7 +97,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Air Conditioning',
     system: 'aircon',
     vh: 300,
-    camera: { from: [1.5, 0.55, 1.8], to: [1.6, 0.9, 2.4], target: [0, 0.45, 1.85], fov: 40 },
+    camera: { from: [1.5, 0.6, 1.9], to: [2.2, 1.2, 2.6], target: [0, 0.7, 0.6], fov: 40 },
     mechanism: MECHANISM,
   },
   {
@@ -102,7 +106,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Reassembly',
     system: null,
     vh: 180,
-    camera: { from: [1.6, 0.9, 2.4], to: [4.8, 1.8, 4.6], target: [0, 0.45, 0], fov: 35 },
+    camera: { from: [2.2, 1.2, 2.6], to: [5.5, 2.2, 6.5], target: [0, 0.7, 0], fov: 35 },
     mechanism: MECHANISM,
   },
 ]

@@ -1,4 +1,5 @@
-import { Box3, Group, Mesh, Object3D, Vector3 } from 'three'
+import { Box3, Group, Vector3 } from 'three'
+import type { Mesh, Object3D } from 'three'
 import { TARGET_WHEELBASE } from '@/three/body/bodyAnchors'
 import type { BodyAnchors } from '@/three/body/bodyAnchors'
 import type { Vec3Tuple } from '@/types'
@@ -51,10 +52,12 @@ export const CULL_DENYLIST = [
 /** Tokens identifying the rolling stock of one wheel corner. */
 const TYRE_TOKENS = ['tire', 'tyre', 'wheel', 'rim'] as const
 
-/** Tokens identifying the nose marker used to resolve the forward sign. */
-const NOSE_TOKENS = ['grill', 'grille'] as const
-const NOSE_FALLBACK_TOKENS = ['light', 'lamp', 'headlight'] as const
-const NOSE_FALLBACK_REJECTS = ['red', 'tail', 'brake', 'rear'] as const
+/** Tokens identifying lamp clusters (head lights, tail lights, DRLs, LEDs). */
+const LAMP_TOKENS = ['light', 'lamp', 'led'] as const
+/** Tokens that mark a lamp cluster as belonging to the TAIL, not the nose. */
+const TAIL_TOKENS = ['red', 'tail', 'brake', 'rear', 'stop'] as const
+/** Tokens identifying grille / intake meshes — a weak nose cue, consulted last. */
+const GRILL_TOKENS = ['grill', 'grille'] as const
 
 const HALF_PI = Math.PI / 2
 
@@ -296,46 +299,112 @@ function matchesAny(name: string, tokens: readonly string[]): boolean {
   return tokens.some((token) => name.includes(token))
 }
 
-/** World AABB of the nose marker (grilles preferred, headlamps as a fallback). */
-export function noseMarkerBox(root: Object3D): Box3 | null {
-  const meshes = collectMeshes(root).map((m) => ({ mesh: m, n: key(m.name) }))
+/**
+ * Triangle-weighted centroid of `meshes` along the length axis, or null when
+ * there are none. Weighting by triangle count keeps a large cluster from being
+ * outvoted by a handful of tiny decoration meshes bundled into the same node.
+ */
+function centroidAlong(meshes: readonly Mesh[], lengthOnX: boolean): number | null {
+  if (meshes.length === 0) return null
+  let weighted = 0
+  let weight = 0
+  for (const mesh of meshes) {
+    const centre = unionBox([mesh]).getCenter(new Vector3())
+    const tris = Math.max(1, countTriangles(mesh))
+    weighted += (lengthOnX ? centre.x : centre.z) * tris
+    weight += tris
+  }
+  return weighted / weight
+}
 
-  const primary = meshes.filter(({ n }) => matchesAny(n, NOSE_TOKENS))
-  const chosen =
-    primary.length > 0
-      ? primary
-      : meshes.filter(
-          ({ n }) => matchesAny(n, NOSE_FALLBACK_TOKENS) && !matchesAny(n, NOSE_FALLBACK_REJECTS),
-        )
-  if (chosen.length === 0) return null
-  return unionBox(chosen.map(({ mesh }) => mesh))
+/** Which cue resolved the forward sign, strongest first. */
+export type NoseCue = 'lampPair' | 'headLamps' | 'tailLamps' | 'grills' | 'none'
+
+export interface NoseEvidence {
+  cue: NoseCue
+  /** +1 → nose toward the positive length axis, −1 → negative, 0 → unknown. */
+  sign: number
+  headLamps: string[]
+  tailLamps: string[]
+  grills: string[]
+}
+
+/**
+ * Work out which end of the car is the nose.
+ *
+ * A grille centroid is NOT a usable cue on this model. `grills` bundles the
+ * front grille, the rear grilles and the side intakes into a single mesh, so it
+ * spans the whole car (measured z −2.07 … +2.17 in source space) and its
+ * centroid lands within 5 cm of the shell centre — close enough to silently pick
+ * the WRONG end. `glass` has the same problem.
+ *
+ * The headlamp/taillamp PAIR is a relative measurement and is therefore immune
+ * to wherever the model's origin happens to sit: on this asset `lights` is a
+ * 2 cm-thick slab at z ≈ −1.85 (unmistakably the nose) and `lights_red` sits at
+ * z ≈ +0.91. Grilles are only consulted when a model has no lamps at all.
+ */
+export function resolveNoseEvidence(root: Object3D, lengthOnX: boolean): NoseEvidence {
+  root.updateMatrixWorld(true)
+
+  const named = collectMeshes(root).map((mesh) => ({ mesh, n: key(mesh.name) }))
+  const lamps = named.filter(({ n }) => matchesAny(n, LAMP_TOKENS))
+  const headLamps = lamps.filter(({ n }) => !matchesAny(n, TAIL_TOKENS)).map(({ mesh }) => mesh)
+  const tailLamps = lamps.filter(({ n }) => matchesAny(n, TAIL_TOKENS)).map(({ mesh }) => mesh)
+  const grills = named.filter(({ n }) => matchesAny(n, GRILL_TOKENS)).map(({ mesh }) => mesh)
+
+  const evidence: NoseEvidence = {
+    cue: 'none',
+    sign: 0,
+    headLamps: headLamps.map((m) => m.name),
+    tailLamps: tailLamps.map((m) => m.name),
+    grills: grills.map((m) => m.name),
+  }
+
+  const head = centroidAlong(headLamps, lengthOnX)
+  const tail = centroidAlong(tailLamps, lengthOnX)
+  const grill = centroidAlong(grills, lengthOnX)
+
+  const pick = (cue: NoseCue, delta: number | null): boolean => {
+    // Sub-0.1 mm separation is noise, not a decision.
+    if (delta === null || Math.abs(delta) < 1e-4) return false
+    evidence.cue = cue
+    evidence.sign = delta > 0 ? 1 : -1
+    return true
+  }
+
+  // 1. Both lamp clusters present — the strongest, purely relative cue.
+  if (head !== null && tail !== null && pick('lampPair', head - tail)) return evidence
+
+  // 2. Only one cluster: compare it against the shell centre.
+  const centre = unionBox([root]).getCenter(new Vector3())
+  const shellCentre = lengthOnX ? centre.x : centre.z
+  if (pick('headLamps', head === null ? null : head - shellCentre)) return evidence
+  if (pick('tailLamps', tail === null ? null : shellCentre - tail)) return evidence
+
+  // 3. Last resort — grille centroid, unreliable when side intakes are merged in.
+  pick('grills', grill === null ? null : grill - shellCentre)
+  return evidence
 }
 
 /**
  * Y-rotation (radians) that puts the car's nose on +Z with its length axis on Z.
  *
  * The longest horizontal axis of the retained shell is the car's length. Its
- * SIGN is ambiguous from the box alone, so it is resolved with the nose marker:
- * the grilles (or failing that, the headlamps) sit at the front.
+ * SIGN is ambiguous from the box alone, so it is resolved with the lamp-pair
+ * evidence above. The camera keyframes require nose-on-+Z, so this is mandatory
+ * rather than cosmetic.
  */
 export function resolveForwardYaw(root: Object3D): number {
   root.updateMatrixWorld(true)
 
-  const shell = unionBox([root])
-  shell.getSize(_size)
-  shell.getCenter(_centre)
-  const lengthOnX = _size.x >= _size.z
+  // Fresh Vector3s, not the shared scratch: `resolveNoseEvidence` calls
+  // `unionBox` internally and would clobber `_size` / `_centre`.
+  const size = unionBox([root]).getSize(new Vector3())
+  const lengthOnX = size.x >= size.z
+  const { sign } = resolveNoseEvidence(root, lengthOnX)
 
-  const marker = noseMarkerBox(root)
-  const noseZ = marker ? marker.getCenter(_pos).clone() : null
-
-  if (!noseZ) {
-    // No recognisable nose: assume the length axis already lies on Z and keep it.
-    return lengthOnX ? -HALF_PI : 0
-  }
-
-  const delta = lengthOnX ? noseZ.x - _centre.x : noseZ.z - _centre.z
-  const noseIsPositive = delta >= 0
+  // sign 0 (no recognisable nose) keeps the length axis where it already is.
+  const noseIsPositive = sign >= 0
 
   if (lengthOnX) {
     // Rotating -90° maps +X onto +Z; +90° maps -X onto +Z.
@@ -456,6 +525,18 @@ function num(v: number, digits = 4): number {
 }
 
 /**
+ * Cowl (windshield base) offset BEHIND the front axle, as a fraction of the
+ * wheelbase. This asset cannot be measured for the cowl position — its single
+ * `glass` mesh carries the windshield, the side glass AND the rear screen, so a
+ * bounding box over it spans the whole car. On a front-mid-engine layout the
+ * cowl sits ~0.40 × wheelbase behind the front axle, which lands the bay on
+ * z = [+0.27 … +1.35] and keeps the chapters.ts engine anchor (z = +0.85) inside.
+ */
+export const ENGINE_BAY_LENGTH_FRACTION = 0.4
+/** Bonnet/deck height as a fraction of roof height above the contact patch. */
+export const BONNET_LINE_FRACTION = 0.68
+
+/**
  * Measure the anchor set Phase 3 builds against, from an ALREADY normalised
  * body root. Pure read-only: nothing is mutated except world matrices.
  */
@@ -507,31 +588,47 @@ export function measureAnchors(root: Object3D): BodyAnchors {
   const rearZ = (wheelRL[2] + wheelRR[2]) / 2
   const wheelbase = Math.abs(frontZ - rearZ)
 
-  // ── greenhouse → cabin + cowl + beltline ───────────────────────────────────
+  // ── greenhouse → cabin centre ─────────────────────────────────────────────
   const glassMeshes = collectMeshes(root).filter((m) => {
     const n = key(m.name)
     return n.includes('glass') && !n.includes('light') && !n.includes('tail')
   })
   const glassBox = glassMeshes.length > 0 ? unionBox(glassMeshes) : null
 
-  const cabinCenter = glassBox ? tuple(glassBox.getCenter(new Vector3())) : ([0, 0, 0] as Vec3Tuple)
-  // Nose is +Z, so the windshield base is the glass box's max-Z face.
-  const cowlZ = glassBox ? Math.min(glassBox.max.z, frontZ) : frontZ * 0.5
-  const beltlineY = glassBox ? glassBox.min.y : shell.max.y * 0.6
+  const cabinCenter: Vec3Tuple = glassBox
+    ? tuple(glassBox.getCenter(new Vector3()))
+    : [0, num(shell.max.y * 0.62), num(frontZ * 0.25)]
 
-  // ── engine bay: cowl → front axle, between the inner tyre faces, undertray → beltline ──
-  const floorY = shell.min.y
+  // ── undertray: lowest RETAINED non-rolling-stock vertex ───────────────────
+  // The shell union bottoms out at y = 0 because the tyres are part of it, so
+  // `shell.min.y` is the CONTACT PATCH, not the floor of the engine bay.
+  const undertrayYs = collectMeshes(root)
+    .filter((m) => !isTyrePart(m.name))
+    .map((m) => unionBox([m]).min.y)
+  const floorY = undertrayYs.length > 0 ? Math.min(...undertrayYs) : shell.min.y
+
+  // ── engine bay: front axle → cowl, between the inner tyre faces, undertray → bonnet ──
+  // Z is a layout ratio, NOT a glass-box measurement — see ENGINE_BAY_LENGTH_FRACTION.
+  const cowlZ = frontZ - ENGINE_BAY_LENGTH_FRACTION * wheelbase
   const bayMinZ = Math.min(cowlZ, frontZ)
   const bayMaxZ = Math.max(cowlZ, frontZ)
-  const bayInnerWidth = Math.max(0.1, trackWidth - 2 * wheelWidth)
+
+  const bonnetY = shell.max.y * BONNET_LINE_FRACTION
+  const bayFloorY = Math.min(floorY, bonnetY)
+  const bayCeilY = Math.max(bonnetY, floorY + 0.05)
+
+  // X is the clear span between the INNER faces of the left and right tyres.
+  // `trackWidth` is hub-to-hub, so exactly ONE tyre width comes off it — not two.
+  const bayWidth = Math.max(0.1, trackWidth - wheelWidth)
+
   const engineBaySize: Vec3Tuple = [
-    num(bayInnerWidth),
-    num(Math.max(0.05, beltlineY - floorY)),
+    num(bayWidth),
+    num(Math.max(0.05, bayCeilY - bayFloorY)),
     num(Math.max(0.05, bayMaxZ - bayMinZ)),
   ]
   const engineBayCenter: Vec3Tuple = [
     0,
-    num((beltlineY + floorY) / 2),
+    num((bayCeilY + bayFloorY) / 2),
     num((bayMaxZ + bayMinZ) / 2),
   ]
 
