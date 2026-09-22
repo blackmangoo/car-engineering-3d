@@ -39,7 +39,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'The Complete Machine',
     system: null,
     vh: 150,
-    camera: { from: [5.5, 2.2, 6.5], to: [4.0, 1.6, 5.0], target: [0, 0.7, 0], fov: 35 },
+    camera: { from: [4.8, 1.8, 4.6], to: [4.2, 1.5, 3.8], target: [0, 0.45, 0], fov: 35 },
     mechanism: MECHANISM,
   },
   {
@@ -48,7 +48,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Beneath the Skin',
     system: null,
     vh: 200,
-    camera: { from: [4.0, 1.6, 5.0], to: [3.2, 1.4, 3.6], target: [0, 0.7, 0], fov: 38 },
+    camera: { from: [4.2, 1.5, 3.8], to: [3.4, 1.6, 2.8], target: [0, 0.45, 0], fov: 38 },
     mechanism: MECHANISM,
   },
   {
@@ -57,7 +57,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Suspension',
     system: 'suspension',
     vh: 280,
-    camera: { from: [3.2, 1.4, 3.6], to: [2.0, 0.9, 2.2], target: [0.8, 0.45, 1.35], fov: 40 },
+    camera: { from: [3.4, 1.6, 2.8], to: [1.8, 0.75, 2.0], target: [0.75, 0.35, 1.35], fov: 40 },
     mechanism: MECHANISM,
   },
   {
@@ -66,7 +66,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Engine',
     system: 'engine',
     vh: 320,
-    camera: { from: [2.0, 0.9, 2.2], to: [1.7, 1.3, 2.0], target: [0, 0.75, 0.85], fov: 38 },
+    camera: { from: [1.8, 0.75, 2.0], to: [1.5, 1.3, -0.2], target: [0, 0.5, -0.65], fov: 38 },
     mechanism: MECHANISM,
   },
   {
@@ -75,7 +75,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Transmission',
     system: 'transmission',
     vh: 280,
-    camera: { from: [1.7, 1.3, 2.0], to: [1.6, 0.9, 0.6], target: [0, 0.6, -0.3], fov: 40 },
+    camera: { from: [1.5, 1.3, -0.2], to: [1.3, 0.8, -0.9], target: [0, 0.4, -1.35], fov: 40 },
     mechanism: MECHANISM,
   },
   {
@@ -84,7 +84,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Brakes',
     system: 'brakes',
     vh: 260,
-    camera: { from: [1.6, 0.9, 0.6], to: [1.5, 0.6, 1.9], target: [0.8, 0.33, 1.35], fov: 42 },
+    camera: { from: [1.3, 0.8, -0.9], to: [1.5, 0.55, 1.8], target: [0.78, 0.33, 1.35], fov: 42 },
     mechanism: MECHANISM,
   },
   {
@@ -93,7 +93,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Air Conditioning',
     system: 'aircon',
     vh: 300,
-    camera: { from: [1.5, 0.6, 1.9], to: [2.2, 1.2, 2.6], target: [0, 0.7, 0.6], fov: 40 },
+    camera: { from: [1.5, 0.55, 1.8], to: [1.6, 0.9, 2.4], target: [0, 0.45, 1.85], fov: 40 },
     mechanism: MECHANISM,
   },
   {
@@ -102,7 +102,7 @@ export const CHAPTERS: readonly ChapterDef[] = [
     title: 'Reassembly',
     system: null,
     vh: 180,
-    camera: { from: [2.2, 1.2, 2.6], to: [5.5, 2.2, 6.5], target: [0, 0.7, 0], fov: 35 },
+    camera: { from: [1.6, 0.9, 2.4], to: [4.8, 1.8, 4.6], target: [0, 0.45, 0], fov: 35 },
     mechanism: MECHANISM,
   },
 ]
