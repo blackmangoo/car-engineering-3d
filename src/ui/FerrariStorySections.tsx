@@ -24,7 +24,7 @@ export function FerrariStorySections({ onScrollProgress }: FerrariStorySectionsP
           const progress = Math.max(0, Math.min(1, scrollY / (maxScroll || 1)));
           onScrollProgress(progress);
 
-          // Update active chapter based on section positions
+          // Update active chapter accurately by closest section center to viewport center
           const sections: FerrariChapter[] = [
             'hero',
             'aerodynamics',
@@ -36,11 +36,17 @@ export function FerrariStorySections({ onScrollProgress }: FerrariStorySectionsP
           ];
 
           let current: FerrariChapter = 'hero';
+          let minDistance = Infinity;
+          const viewportCenter = window.innerHeight / 2;
+
           sections.forEach((id) => {
             const el = document.getElementById(`section-${id}`);
             if (el) {
               const rect = el.getBoundingClientRect();
-              if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.2) {
+              const sectionCenter = rect.top + rect.height / 2;
+              const distance = Math.abs(sectionCenter - viewportCenter);
+              if (distance < minDistance) {
+                minDistance = distance;
                 current = id;
               }
             }

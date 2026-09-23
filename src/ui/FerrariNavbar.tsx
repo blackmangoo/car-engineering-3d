@@ -1,29 +1,16 @@
 import { useCallback } from 'react';
 import { useFerrariStore, FerrariChapter } from '@/state/useFerrariStore';
-import { ferrariSound } from '@/utils/ferrariSound';
-import { Volume2, VolumeX, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function FerrariNavbar() {
   const activeChapter = useFerrariStore((s) => s.activeChapter);
   const cinemaMode = useFerrariStore((s) => s.cinemaMode);
   const toggleCinemaMode = useFerrariStore((s) => s.toggleCinemaMode);
-  const soundEnabled = useFerrariStore((s) => s.soundEnabled);
-  const toggleSound = useFerrariStore((s) => s.toggleSound);
-
-  const handleSoundToggle = () => {
-    if (!soundEnabled) {
-      toggleSound();
-      ferrariSound.playStartup();
-    } else {
-      toggleSound();
-      ferrariSound.stopAll();
-    }
-  };
 
   const navItems: { id: FerrariChapter; label: string }[] = [
     { id: 'hero', label: 'ESSENZA' },
     { id: 'aerodynamics', label: 'AERODINAMICA' },
-    { id: 'powertrain', label: 'HY-KERS V12' },
+    { id: 'powertrain', label: 'HY-KERS' },
     { id: 'chassis', label: 'TELAIO' },
     { id: 'cockpit', label: 'COCKPIT' },
     { id: 'specs', label: 'SPECIFICHE' },
@@ -41,37 +28,42 @@ export function FerrariNavbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 h-[72px] px-8 md:px-14 flex items-center justify-between border-b border-white/[0.08] bg-[#070709]/80 backdrop-blur-2xl pointer-events-none transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-40 h-[72px] px-6 lg:px-10 flex items-center justify-between border-b border-white/[0.08] bg-[#070709]/85 backdrop-blur-2xl pointer-events-none transition-all duration-500 ${
           cinemaMode ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
         }`}
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
       >
-        {/* Left: Official Ferrari Maranello Crest & Typographical Wordmark */}
+        {/* Left: Official Scuderia Ferrari Crest & Wordmark */}
         <div
           onClick={() => handleNavClick('hero')}
           className="pointer-events-auto flex items-center cursor-pointer group flex-shrink-0"
-          style={{ display: 'flex', alignItems: 'center', gap: '16px' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
         >
-          {/* Scuderia Ferrari Shield Emblem */}
-          <div className="w-[26px] h-[34px] bg-gradient-to-b from-[#ffd200] via-[#ffd200] to-[#e5b300] rounded-b-[2px] flex items-center justify-center shadow-md shadow-black/60 border border-[#fff280]/50 transition-transform duration-300 group-hover:scale-105">
-            <span className="font-serif font-black text-black text-[11px] tracking-tighter">SF</span>
-          </div>
+          {/* Official Scuderia Ferrari Shield Logo */}
+          <img
+            src="/images/ferrari-logo.png"
+            alt="Scuderia Ferrari"
+            className="h-9 w-auto object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+          />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span className="font-serif tracking-[0.28em] text-[15px] text-white font-semibold group-hover:text-[#d91424] transition-colors">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              className="font-serif text-[15px] text-white font-semibold tracking-[0.22em] group-hover:text-[#d91424] transition-colors"
+            >
               FERRARI
             </span>
-            <span style={{ width: '1px', height: '14px', background: 'rgba(255, 255, 255, 0.2)' }} />
-            <span className="font-sans font-medium text-[9px] tracking-[0.35em] text-[#9ca3af] uppercase">
+            <span style={{ width: '1px', height: '12px', background: 'rgba(255, 255, 255, 0.25)' }} />
+            <span
+              className="font-sans font-medium text-[9px] text-[#9ca3af] uppercase tracking-[0.25em]"
+            >
               LAFERRARI
             </span>
           </div>
         </div>
 
-        {/* Center: Clean Architectural Editorial Navigation (Generous 32px flex gap) */}
+        {/* Center: Editorial Navigation Links */}
         <nav
-          className="hidden xl:flex items-center pointer-events-auto flex-nowrap whitespace-nowrap"
-          style={{ display: 'flex', alignItems: 'center', gap: '32px' }}
+          className="hidden md:flex items-center pointer-events-auto flex-nowrap whitespace-nowrap overflow-x-auto scrollbar-none"
+          style={{ display: 'flex', alignItems: 'center', gap: '14px' }}
         >
           {navItems.map((item) => {
             const isActive = activeChapter === item.id;
@@ -80,58 +72,41 @@ export function FerrariNavbar() {
                 key={item.id}
                 type="button"
                 onClick={() => handleNavClick(item.id)}
-                className={`relative py-1 text-[11px] font-sans font-medium tracking-[0.24em] transition-all cursor-pointer whitespace-nowrap flex-shrink-0 uppercase ${
-                  isActive ? 'text-white' : 'text-[#8e95a5] hover:text-white'
+                className={`relative py-1 text-[11px] font-sans font-medium uppercase transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                  isActive ? 'text-white font-semibold' : 'text-[#8e95a5] hover:text-white'
                 }`}
+                style={{ letterSpacing: '0.14em' }}
               >
                 <span>{item.label}</span>
                 {isActive && (
-                  <span className="absolute -bottom-2 left-0 right-0 h-[1.5px] bg-[#d91424] shadow-sm shadow-[#d91424]" />
+                  <span
+                    className="absolute -bottom-1 left-0 right-0 h-[2px] bg-[#d91424]"
+                    style={{ boxShadow: '0 0 10px rgba(217, 20, 36, 0.7)' }}
+                  />
                 )}
               </button>
             );
           })}
         </nav>
 
-        {/* Right: Audio & Cinema View Toggles */}
+        {/* Right: Cinema View Toggle */}
         <div
           className="pointer-events-auto flex items-center flex-shrink-0 whitespace-nowrap"
-          style={{ display: 'flex', alignItems: 'center', gap: '14px' }}
+          style={{ display: 'flex', alignItems: 'center' }}
         >
-          {/* V12 Audio Engine Button */}
-          <button
-            type="button"
-            onClick={handleSoundToggle}
-            className={`px-4 py-2 rounded-full text-[11px] font-sans font-medium tracking-[0.16em] uppercase transition-all cursor-pointer flex items-center border whitespace-nowrap ${
-              soundEnabled
-                ? 'bg-[#ffd200]/15 text-[#ffd200] border-[#ffd200]/50 shadow-md shadow-[#ffd200]/20'
-                : 'bg-white/[0.04] text-gray-300 border-white/15 hover:border-white/30 hover:bg-white/[0.08] hover:text-white'
-            }`}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            title="Toggle authentic 6.3L V12 engine audio"
-          >
-            {soundEnabled ? (
-              <Volume2 className="w-3.5 h-3.5 text-[#ffd200] flex-shrink-0" />
-            ) : (
-              <VolumeX className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            )}
-            <span className="whitespace-nowrap">{soundEnabled ? 'V12 AUDIO: ON' : 'V12 AUDIO'}</span>
-          </button>
-
-          {/* Cinema View Toggle Button */}
           <button
             type="button"
             onClick={toggleCinemaMode}
-            className="px-4 py-2 rounded-full text-[11px] font-sans font-medium tracking-[0.16em] uppercase bg-white/[0.04] text-gray-300 border border-white/15 hover:border-white/30 hover:bg-white/[0.08] hover:text-white transition-all cursor-pointer flex items-center whitespace-nowrap"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            title="Hide all UI overlays for a 100% clean 3D car view"
+            className="px-3.5 py-1.5 rounded-full text-[10px] font-sans font-medium tracking-[0.14em] uppercase bg-white/[0.04] text-gray-200 border border-white/15 hover:border-white/40 hover:bg-white/[0.08] hover:text-white transition-all cursor-pointer flex items-center whitespace-nowrap shadow-sm"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            title="Hide all UI overlays for a 100% clean view of the car"
           >
             {cinemaMode ? (
               <EyeOff className="w-3.5 h-3.5 text-[#d91424] flex-shrink-0" />
             ) : (
               <Eye className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
             )}
-            <span className="whitespace-nowrap">CINEMA VIEW</span>
+            <span className="whitespace-nowrap font-medium text-[10px]">CINEMA VIEW</span>
           </button>
         </div>
       </header>

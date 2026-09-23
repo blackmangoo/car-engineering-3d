@@ -1,12 +1,15 @@
 import { useFerrariStore, FERRARI_PAINTS } from '@/state/useFerrariStore';
 import { LAFERRARI_SECTIONS } from '@/content/ferrariData';
-import { RotateCw } from 'lucide-react';
+import { ferrariSound } from '@/utils/ferrariSound';
+import { RotateCw, Volume2, VolumeX } from 'lucide-react';
 
 export function FerrariBottomBar() {
   const activeChapter = useFerrariStore((s) => s.activeChapter);
   const cinemaMode = useFerrariStore((s) => s.cinemaMode);
   const orbitMode = useFerrariStore((s) => s.orbitMode);
   const toggleOrbitMode = useFerrariStore((s) => s.toggleOrbitMode);
+  const soundEnabled = useFerrariStore((s) => s.soundEnabled);
+  const toggleSound = useFerrariStore((s) => s.toggleSound);
   const selectedPaint = useFerrariStore((s) => s.paint);
   const setPaint = useFerrariStore((s) => s.setPaint);
 
@@ -14,6 +17,16 @@ export function FerrariBottomBar() {
   if (activeChapter === 'atelier' || activeChapter === 'specs') {
     return null;
   }
+
+  const handleSoundToggle = () => {
+    if (!soundEnabled) {
+      toggleSound();
+      ferrariSound.playStartup();
+    } else {
+      toggleSound();
+      ferrariSound.stopAll();
+    }
+  };
 
   const section = LAFERRARI_SECTIONS[activeChapter] || LAFERRARI_SECTIONS.hero;
 
@@ -24,7 +37,7 @@ export function FerrariBottomBar() {
       }`}
     >
       {/* Left: Active Stage Kicker */}
-      <div className="pointer-events-auto flex items-center space-x-3 bg-[#070709]/75 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg text-xs font-sans">
+      <div className="pointer-events-auto flex items-center space-x-3 bg-[#070709]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg text-xs font-sans">
         <span className="w-1.5 h-1.5 rounded-full bg-[#d91424] shadow-sm shadow-[#d91424]" />
         <span className="font-mono text-[10px] text-[#ffd200] font-bold">
           STAGE {section.stage}
@@ -36,9 +49,9 @@ export function FerrariBottomBar() {
       </div>
 
       {/* Center: Real-Time Paint Swatch Selector */}
-      <div className="pointer-events-auto flex items-center space-x-2.5 bg-[#070709]/75 backdrop-blur-xl px-4 py-1.5 rounded-full border border-white/10 shadow-lg">
+      <div className="pointer-events-auto flex items-center space-x-2.5 bg-[#070709]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg">
         <span className="text-[9px] font-mono tracking-[0.2em] text-gray-400 uppercase mr-1 hidden md:inline">
-          PAINT:
+          VERNICE:
         </span>
         {FERRARI_PAINTS.map((p) => {
           const isSelected = selectedPaint.id === p.id;
@@ -63,20 +76,40 @@ export function FerrariBottomBar() {
         })}
       </div>
 
-      {/* Right: 360 Orbit Toggle Button with Lucide Icon */}
-      <div className="pointer-events-auto">
+      {/* Right: Audio Engine & 360 Orbit Controls */}
+      <div className="pointer-events-auto flex items-center space-x-2.5">
+        {/* V12 Sound Engine */}
+        <button
+          type="button"
+          onClick={handleSoundToggle}
+          className={`px-3.5 py-1.5 rounded-full text-[10px] font-mono tracking-[0.14em] uppercase transition-all cursor-pointer flex items-center space-x-1.5 border shadow-lg backdrop-blur-xl ${
+            soundEnabled
+              ? 'bg-[#ffd200]/15 text-[#ffd200] border-[#ffd200]/50 shadow-[#ffd200]/20'
+              : 'bg-[#070709]/80 text-gray-300 border-white/10 hover:border-white/30 hover:text-white'
+          }`}
+          title="Toggle authentic 6.3L V12 engine audio"
+        >
+          {soundEnabled ? (
+            <Volume2 className="w-3 h-3 text-[#ffd200] flex-shrink-0" />
+          ) : (
+            <VolumeX className="w-3 h-3 text-gray-400 flex-shrink-0" />
+          )}
+          <span className="font-semibold hidden sm:inline">{soundEnabled ? 'V12 AUDIO: ON' : 'V12 AUDIO'}</span>
+        </button>
+
+        {/* 360 Orbit Toggle */}
         <button
           type="button"
           onClick={toggleOrbitMode}
-          className={`px-4 py-2 rounded-full text-[10px] font-mono tracking-[0.16em] uppercase border transition-all cursor-pointer backdrop-blur-xl shadow-lg flex items-center space-x-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-[10px] font-mono tracking-[0.14em] uppercase border transition-all cursor-pointer backdrop-blur-xl shadow-lg flex items-center space-x-1.5 ${
             orbitMode
               ? 'bg-[#d91424] text-white border-[#d91424] shadow-[#d91424]/30'
-              : 'bg-[#070709]/75 text-gray-300 border-white/10 hover:border-white/30 hover:text-white'
+              : 'bg-[#070709]/80 text-gray-300 border-white/10 hover:border-white/30 hover:text-white'
           }`}
           title="Toggle free 360-degree drag orbit"
         >
           <RotateCw className="w-3 h-3" />
-          <span>{orbitMode ? 'ORBIT: ON' : '360° ORBIT'}</span>
+          <span className="hidden sm:inline">{orbitMode ? 'ORBIT: ON' : '360° ORBIT'}</span>
         </button>
       </div>
     </footer>

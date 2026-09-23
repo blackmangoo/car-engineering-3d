@@ -15,8 +15,8 @@ interface LaFerrariHeroProps {
  * - Real-time PBR Rosso Corsa / Atelier clearcoat automotive paint
  * - Dynamic scroll-driven 3D revolution showing all aerodynamic angles
  * - Active paint color switching in real time
- * - Authentic carbon splitters, Brembo calipers, Pirelli tires, and F1 cockpit
  * - Crystal-clear optical headlights with Xenon Ice-White LED projectors (Zero red tint)
+ * - Deep Ferrari ruby-red circular taillights and brake lights (Zero white tint)
  */
 export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
   const { scene } = useGLTF('/models/laferrari/source/ferrari_laferrari.glb');
@@ -43,7 +43,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
     return { scale, center, box, size };
   }, [scene]);
 
-  // Apply authentic PBR materials with normalized token matching
+  // Apply authentic PBR materials with exact node-level matching
   useEffect(() => {
     bodyMeshesRef.current = [];
 
@@ -53,10 +53,13 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
         child.receiveShadow = true;
 
         const rawName = (child.name + ' ' + (child.material.name || '')).toLowerCase();
-        const n = rawName.replace(/[^a-z0-9]/g, '');
 
         // 1. CAR BODYWORK (Rosso Corsa Paint)
-        if (n.includes('laferraribody') || (n.includes('body') && !n.includes('glass') && !n.includes('light'))) {
+        if (
+          rawName.includes('body') &&
+          !rawName.includes('glass') &&
+          !rawName.includes('light')
+        ) {
           bodyMeshesRef.current.push(child);
           child.material = new THREE.MeshPhysicalMaterial({
             color: new THREE.Color(paint.hex),
@@ -70,33 +73,21 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        // 1. FRONT HEADLIGHTS (Front Lenses, DRL strips, Projectors)
-        const isFrontHeadlight =
-          n.includes('headlightsglasses') ||
-          n.includes('head_lights_glasses') ||
-          n.includes('run_lights') ||
-          n.includes('runlight') ||
-          n.includes('red_light') ||
-          n.includes('redlight');
-
         // 2. REAR TAILLIGHTS (Circular Taillights, Brake Lights, Reflector Cups)
-        // Completely strip all white tint from the circular back lights
-        const isRearTaillight =
-          n.includes('tail_light') ||
-          n.includes('taillight') ||
-          n.includes('break_light') ||
-          n.includes('breaklight') ||
-          n.includes('breake_light') ||
-          n.includes('brakelight') ||
-          n.includes('rear_headlight') ||
-          n.includes('rearheadlight') ||
-          n.includes('front_headlight') || // Node 40 in GLB is the rear circular taillight
-          n.includes('frontheadlight') ||
-          n.includes('chrome0') ||
-          n.includes('breake_chrome');
+        // Nodes in GLB: 8, 14, 15, 23, 31, 33, 40, 42
+        // Completely strip all white tint from the back lights
+        const isRearLight = [
+          'break lights',
+          'breake lights',
+          'breake chrome',
+          'rear headlights',
+          'tail lights',
+          'front headlights.001', // Node 40 in GLB is the rear circular taillight!
+          'chrome0'
+        ].some((w) => rawName.includes(w));
 
-        if (isRearTaillight) {
-          if (n.includes('glass') || n.includes('glasses')) {
+        if (isRearLight) {
+          if (rawName.includes('glasses') || rawName.includes('glass')) {
             // Smoked dark ruby-red polycarbonate outer lens (Zero white)
             child.material = new THREE.MeshPhysicalMaterial({
               color: 0x770005,
@@ -104,10 +95,10 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
               opacity: 0.85,
               roughness: 0.04,
               metalness: 0.2,
-              emissive: new THREE.Color(0x550000),
+              emissive: new THREE.Color(0x440000),
               emissiveIntensity: 0.4,
             });
-          } else if (n.includes('chrom')) {
+          } else if (rawName.includes('chrom')) {
             // Dark smoked graphite reflector housing inside the circular taillights (Zero white)
             child.material = new THREE.MeshStandardMaterial({
               color: 0x0a0a0e,
@@ -127,14 +118,23 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        if (isFrontHeadlight) {
-          if (n.includes('glass') || n.includes('glasses')) {
+        // 3. FRONT HEADLIGHTS (Lenses, DRL strips, Projectors)
+        // Nodes in GLB: 19, 32, 20
+        // Completely strip all red tint and apply crystal-clear lenses with Xenon White LED projectors
+        const isFrontLight = [
+          'head lights glasses',
+          'run lights',
+          'red light'
+        ].some((w) => rawName.includes(w));
+
+        if (isFrontLight) {
+          if (rawName.includes('glasses') || rawName.includes('glass')) {
             // Optical crystal-clear polycarbonate front lens (Zero red tint, high transmission)
             child.material = new THREE.MeshPhysicalMaterial({
               color: 0xffffff,
               transparent: true,
-              opacity: 0.15,
-              roughness: 0.02,
+              opacity: 0.14,
+              roughness: 0.01,
               metalness: 0.1,
               transmission: 0.96,
               ior: 1.5,
@@ -155,8 +155,8 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        // 3. WIREFRAME INTERNAL HOUSING MESHES (Zero red)
-        if (n.includes('wireframe') || n.includes('e05656') || n.includes('860606') || n.includes('e5a6d7')) {
+        // 4. WIREFRAME INTERNAL HOUSING MESHES (Zero red, clean dark metal)
+        if (rawName.includes('wireframe') || rawName.includes('0xe05656') || rawName.includes('0x860606') || rawName.includes('0xe5a6d7')) {
           child.material = new THREE.MeshStandardMaterial({
             color: 0x12141a,
             metalness: 0.85,
@@ -165,8 +165,8 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        // 4. CANOPY & ENGINE HATCH GLASS
-        if (n.includes('glass')) {
+        // 5. CANOPY & ENGINE HATCH GLASS
+        if (rawName.includes('glass')) {
           child.material = new THREE.MeshPhysicalMaterial({
             color: 0x111c26,
             metalness: 0.2,
@@ -179,8 +179,8 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        // 5. CARBON FIBER COMPOSITES
-        if (n.includes('carbon')) {
+        // 6. CARBON FIBER COMPOSITES
+        if (rawName.includes('carbon')) {
           child.material = new THREE.MeshStandardMaterial({
             color: 0x14161a,
             roughness: 0.45,
@@ -190,8 +190,8 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        // 6. RIMS & CHROME METALLICS
-        if (n.includes('rim') || n.includes('chrome')) {
+        // 7. RIMS & CHROME METALLICS
+        if (rawName.includes('rim') || rawName.includes('chrome')) {
           child.material = new THREE.MeshStandardMaterial({
             color: 0xe2e8f0,
             metalness: 0.95,
@@ -201,8 +201,8 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           return;
         }
 
-        // 7. TIRES
-        if (n.includes('tread') || n.includes('tire')) {
+        // 8. TIRES
+        if (rawName.includes('tread') || rawName.includes('tire')) {
           child.material = new THREE.MeshStandardMaterial({
             color: 0x16171b,
             roughness: 0.92,
@@ -235,8 +235,8 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
     }
 
     // Target rotation based on chapter & scroll progression
-    // 0.0 = Front 3/4 beauty view (Front nose, Ferrari badge, and headlights facing the viewer)
-    const targetRotationY = 2.35 + scrollProgress * Math.PI * 2.5;
+    // 0.0 = Front 3/4 beauty view (Classic Ferrari stance showcasing front nose & clear headlights)
+    const targetRotationY = 2.79 + scrollProgress * Math.PI * 2.5;
 
     // Smooth lerp damping to ensure buttery 60 FPS transitions
     carGroupRef.current.rotation.y = THREE.MathUtils.lerp(
@@ -251,7 +251,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
   });
 
   return (
-    <group ref={carGroupRef} position={[0.9, 0, 0]}>
+    <group ref={carGroupRef} position={[0.55, 0, 0]}>
       <primitive
         object={scene}
         scale={[transform.scale, transform.scale, transform.scale]}
