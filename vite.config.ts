@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { appendFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
@@ -52,7 +53,7 @@ function manualChunks(id: string): string | undefined {
 }
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       // Absolute alias mirroring tsconfig "paths": { "@/*": ["src/*"] }
