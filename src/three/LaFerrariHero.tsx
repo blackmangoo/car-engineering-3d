@@ -16,6 +16,7 @@ interface LaFerrariHeroProps {
  * - Dynamic scroll-driven 3D revolution showing all aerodynamic angles
  * - Active paint color switching in real time
  * - Authentic carbon splitters, Brembo calipers, Pirelli tires, and F1 cockpit
+ * - Crystal-clear optical headlights with Xenon Ice-White LED projectors (Zero red tint)
  */
 export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
   const { scene } = useGLTF('/models/laferrari/source/ferrari_laferrari.glb');
@@ -39,12 +40,10 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = maxDim > 0 ? 4.70 / maxDim : 1;
 
-    console.log('[LaFerrari] Measured box:', box.min, box.max, 'Scale:', scale);
-
     return { scale, center, box, size };
   }, [scene]);
 
-  // Apply authentic PBR materials
+  // Apply authentic PBR materials with normalized token matching
   useEffect(() => {
     bodyMeshesRef.current = [];
 
@@ -53,81 +52,163 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
         child.castShadow = true;
         child.receiveShadow = true;
 
-        const mat = child.material as THREE.MeshStandardMaterial;
-        const name = (child.name + ' ' + (mat.name || '')).toLowerCase();
+        const rawName = (child.name + ' ' + (child.material.name || '')).toLowerCase();
+        const n = rawName.replace(/[^a-z0-9]/g, '');
 
-        // High-gloss Clearcoat Ferrari Paint
-        if (name.includes('body')) {
+        // 1. CAR BODYWORK (Rosso Corsa Paint)
+        if (n.includes('laferraribody') || (n.includes('body') && !n.includes('glass') && !n.includes('light'))) {
           bodyMeshesRef.current.push(child);
-          mat.color.setStyle(paint.hex);
-          mat.metalness = paint.metalness;
-          mat.roughness = paint.roughness;
-          mat.envMapIntensity = 1.4;
-
-          if ('clearcoat' in mat) {
-            (mat as unknown as { clearcoat: number; clearcoatRoughness: number }).clearcoat = 1.0;
-            (mat as unknown as { clearcoat: number; clearcoatRoughness: number }).clearcoatRoughness = 0.03;
-          }
-          mat.needsUpdate = true;
+          child.material = new THREE.MeshPhysicalMaterial({
+            color: new THREE.Color(paint.hex),
+            metalness: paint.metalness,
+            roughness: paint.roughness,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.03,
+            reflectivity: 0.95,
+            envMapIntensity: 1.4,
+          });
+          return;
         }
 
-        // Front Headlights: Crystal-clear outer lens + Xenon White LED projectors (Zero red tint)
-        if (
-          name.includes('head_light') ||
-          name.includes('headlight') ||
-          name.includes('front headlight') ||
-          name.includes('head lights glasses') ||
-          name.includes('red_light') ||
-          name.includes('run_lights')
-        ) {
-          if (name.includes('glasses') || name.includes('glass')) {
-            // Crystal-clear optical headlight lens
-            mat.color.setHex(0xffffff);
-            mat.transparent = true;
-            mat.opacity = 0.35;
-            mat.roughness = 0.02;
-            mat.metalness = 0.1;
-            mat.envMapIntensity = 1.5;
+        // 1. FRONT HEADLIGHTS (Front Lenses, DRL strips, Projectors)
+        const isFrontHeadlight =
+          n.includes('headlightsglasses') ||
+          n.includes('head_lights_glasses') ||
+          n.includes('run_lights') ||
+          n.includes('runlight') ||
+          n.includes('red_light') ||
+          n.includes('redlight');
+
+        // 2. REAR TAILLIGHTS (Circular Taillights, Brake Lights, Reflector Cups)
+        // Completely strip all white tint from the circular back lights
+        const isRearTaillight =
+          n.includes('tail_light') ||
+          n.includes('taillight') ||
+          n.includes('break_light') ||
+          n.includes('breaklight') ||
+          n.includes('breake_light') ||
+          n.includes('brakelight') ||
+          n.includes('rear_headlight') ||
+          n.includes('rearheadlight') ||
+          n.includes('front_headlight') || // Node 40 in GLB is the rear circular taillight
+          n.includes('frontheadlight') ||
+          n.includes('chrome0') ||
+          n.includes('breake_chrome');
+
+        if (isRearTaillight) {
+          if (n.includes('glass') || n.includes('glasses')) {
+            // Smoked dark ruby-red polycarbonate outer lens (Zero white)
+            child.material = new THREE.MeshPhysicalMaterial({
+              color: 0x770005,
+              transparent: true,
+              opacity: 0.85,
+              roughness: 0.04,
+              metalness: 0.2,
+              emissive: new THREE.Color(0x550000),
+              emissiveIntensity: 0.4,
+            });
+          } else if (n.includes('chrom')) {
+            // Dark smoked graphite reflector housing inside the circular taillights (Zero white)
+            child.material = new THREE.MeshStandardMaterial({
+              color: 0x0a0a0e,
+              metalness: 0.95,
+              roughness: 0.25,
+            });
           } else {
-            // Xenon White LED projector bulbs & DRL light strip
-            mat.color.setHex(0xf8fafc);
-            mat.metalness = 0.9;
-            mat.roughness = 0.1;
-            mat.emissive.setHex(0xe2e8f0);
-            mat.emissiveIntensity = 0.6;
+            // Deep ruby-red round Ferrari rear circular taillights (Zero white tint)
+            child.material = new THREE.MeshStandardMaterial({
+              color: 0xd91424,
+              metalness: 0.85,
+              roughness: 0.2,
+              emissive: new THREE.Color(0xff0011),
+              emissiveIntensity: 2.2,
+            });
           }
-          mat.needsUpdate = true;
-        } else if (name.includes('glass')) {
-          // Tinted Canopy Glass & Engine Hatch
-          mat.transparent = true;
-          mat.opacity = 0.72;
-          mat.roughness = 0.06;
-          mat.metalness = 0.25;
-          mat.envMapIntensity = 1.6;
-          mat.needsUpdate = true;
+          return;
         }
 
-        // Carbon fiber composite elements
-        if (name.includes('carbon')) {
-          mat.roughness = 0.45;
-          mat.metalness = 0.75;
-          mat.envMapIntensity = 0.8;
-          mat.needsUpdate = true;
+        if (isFrontHeadlight) {
+          if (n.includes('glass') || n.includes('glasses')) {
+            // Optical crystal-clear polycarbonate front lens (Zero red tint, high transmission)
+            child.material = new THREE.MeshPhysicalMaterial({
+              color: 0xffffff,
+              transparent: true,
+              opacity: 0.15,
+              roughness: 0.02,
+              metalness: 0.1,
+              transmission: 0.96,
+              ior: 1.5,
+              clearcoat: 1.0,
+              clearcoatRoughness: 0.02,
+              reflectivity: 0.9,
+            });
+          } else {
+            // Xenon Ice-White LED DRL Projectors & Light Strips (Zero red)
+            child.material = new THREE.MeshStandardMaterial({
+              color: 0xf8fafc,
+              metalness: 0.95,
+              roughness: 0.08,
+              emissive: new THREE.Color(0xffffff),
+              emissiveIntensity: 1.8,
+            });
+          }
+          return;
         }
 
-        // Forged Rims & Brightwork
-        if (name.includes('rim') || name.includes('chrome')) {
-          mat.metalness = 0.95;
-          mat.roughness = 0.15;
-          mat.envMapIntensity = 1.3;
-          mat.needsUpdate = true;
+        // 3. WIREFRAME INTERNAL HOUSING MESHES (Zero red)
+        if (n.includes('wireframe') || n.includes('e05656') || n.includes('860606') || n.includes('e5a6d7')) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0x12141a,
+            metalness: 0.85,
+            roughness: 0.3,
+          });
+          return;
         }
 
-        // Tires
-        if (name.includes('tread') || name.includes('tire')) {
-          mat.roughness = 0.92;
-          mat.metalness = 0.04;
-          mat.needsUpdate = true;
+        // 4. CANOPY & ENGINE HATCH GLASS
+        if (n.includes('glass')) {
+          child.material = new THREE.MeshPhysicalMaterial({
+            color: 0x111c26,
+            metalness: 0.2,
+            roughness: 0.06,
+            transparent: true,
+            opacity: 0.72,
+            reflectivity: 0.9,
+            envMapIntensity: 1.6,
+          });
+          return;
+        }
+
+        // 5. CARBON FIBER COMPOSITES
+        if (n.includes('carbon')) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0x14161a,
+            roughness: 0.45,
+            metalness: 0.75,
+            envMapIntensity: 0.8,
+          });
+          return;
+        }
+
+        // 6. RIMS & CHROME METALLICS
+        if (n.includes('rim') || n.includes('chrome')) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0xe2e8f0,
+            metalness: 0.95,
+            roughness: 0.14,
+            envMapIntensity: 1.3,
+          });
+          return;
+        }
+
+        // 7. TIRES
+        if (n.includes('tread') || n.includes('tire')) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0x16171b,
+            roughness: 0.92,
+            metalness: 0.04,
+          });
+          return;
         }
       }
     });
@@ -136,7 +217,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
   // Dynamic paint color updates when user picks a color in the Atelier
   useEffect(() => {
     bodyMeshesRef.current.forEach((mesh) => {
-      if (mesh.material && mesh.material instanceof THREE.MeshStandardMaterial) {
+      if (mesh.material && mesh.material instanceof THREE.MeshPhysicalMaterial) {
         mesh.material.color.setStyle(paint.hex);
         mesh.material.metalness = paint.metalness;
         mesh.material.roughness = paint.roughness;
@@ -150,17 +231,12 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
     if (!carGroupRef.current) return;
 
     if (orbitMode || activeChapter === 'atelier') {
-      // In atelier / orbit mode, let user orbit freely; maintain subtle gentle breathing rotation
       return;
     }
 
     // Target rotation based on chapter & scroll progression
-    // 0.0 = Front 3/4 beauty view (Classic Ferrari stance)
-    // 0.2 = Side aerodynamic profile
-    // 0.4 = Rear 3/4 looking at active diffuser & spoiler
-    // 0.6 = Elevated angle looking at V12 engine hatch
-    // 0.8 = Full 360-degree orbit
-    const targetRotationY = 4.19 + scrollProgress * Math.PI * 2.5;
+    // 0.0 = Front 3/4 beauty view (Front nose, Ferrari badge, and headlights facing the viewer)
+    const targetRotationY = 2.35 + scrollProgress * Math.PI * 2.5;
 
     // Smooth lerp damping to ensure buttery 60 FPS transitions
     carGroupRef.current.rotation.y = THREE.MathUtils.lerp(
@@ -175,7 +251,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
   });
 
   return (
-    <group ref={carGroupRef} position={[0.45, 0, 0]}>
+    <group ref={carGroupRef} position={[0.9, 0, 0]}>
       <primitive
         object={scene}
         scale={[transform.scale, transform.scale, transform.scale]}

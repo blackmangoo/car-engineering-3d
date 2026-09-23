@@ -1,5 +1,6 @@
 import { useFerrariStore, FERRARI_PAINTS } from '@/state/useFerrariStore';
 import { LAFERRARI_SECTIONS } from '@/content/ferrariData';
+import { RotateCw } from 'lucide-react';
 
 export function FerrariBottomBar() {
   const activeChapter = useFerrariStore((s) => s.activeChapter);
@@ -9,6 +10,11 @@ export function FerrariBottomBar() {
   const selectedPaint = useFerrariStore((s) => s.paint);
   const setPaint = useFerrariStore((s) => s.setPaint);
 
+  // Automatically hide bottom bar on specs and atelier sections to prevent any overlap
+  if (activeChapter === 'atelier' || activeChapter === 'specs') {
+    return null;
+  }
+
   const section = LAFERRARI_SECTIONS[activeChapter] || LAFERRARI_SECTIONS.hero;
 
   return (
@@ -17,21 +23,21 @@ export function FerrariBottomBar() {
         cinemaMode ? 'opacity-0 translate-y-6' : 'opacity-100 translate-y-0'
       }`}
     >
-      {/* Left: Active Section Kicker */}
-      <div className="pointer-events-auto flex items-center space-x-3 bg-[#070709]/70 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg text-xs font-sans">
+      {/* Left: Active Stage Kicker */}
+      <div className="pointer-events-auto flex items-center space-x-3 bg-[#070709]/75 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-lg text-xs font-sans">
         <span className="w-1.5 h-1.5 rounded-full bg-[#d91424] shadow-sm shadow-[#d91424]" />
         <span className="font-mono text-[10px] text-[#ffd200] font-bold">
           STAGE {section.stage}
         </span>
-        <span className="text-gray-400 font-mono text-[10px] hidden sm:inline">|</span>
+        <span className="text-gray-500 font-mono text-[10px] hidden sm:inline">|</span>
         <span className="font-serif text-white tracking-wide text-xs hidden sm:inline italic">
           {section.title}
         </span>
       </div>
 
       {/* Center: Real-Time Paint Swatch Selector */}
-      <div className="pointer-events-auto flex items-center space-x-2.5 bg-[#070709]/70 backdrop-blur-xl px-3.5 py-1.5 rounded-full border border-white/10 shadow-lg">
-        <span className="text-[9px] font-mono tracking-[0.2em] text-gray-500 uppercase mr-1 hidden md:inline">
+      <div className="pointer-events-auto flex items-center space-x-2.5 bg-[#070709]/75 backdrop-blur-xl px-4 py-1.5 rounded-full border border-white/10 shadow-lg">
+        <span className="text-[9px] font-mono tracking-[0.2em] text-gray-400 uppercase mr-1 hidden md:inline">
           PAINT:
         </span>
         {FERRARI_PAINTS.map((p) => {
@@ -57,19 +63,20 @@ export function FerrariBottomBar() {
         })}
       </div>
 
-      {/* Right: 360 Orbit Toggle Button */}
+      {/* Right: 360 Orbit Toggle Button with Lucide Icon */}
       <div className="pointer-events-auto">
         <button
           type="button"
           onClick={toggleOrbitMode}
-          className={`px-4 py-2 rounded-full text-[10px] font-mono tracking-[0.16em] uppercase border transition-all cursor-pointer backdrop-blur-xl shadow-lg ${
+          className={`px-4 py-2 rounded-full text-[10px] font-mono tracking-[0.16em] uppercase border transition-all cursor-pointer backdrop-blur-xl shadow-lg flex items-center space-x-1.5 ${
             orbitMode
               ? 'bg-[#d91424] text-white border-[#d91424] shadow-[#d91424]/30'
-              : 'bg-[#070709]/70 text-gray-300 border-white/10 hover:border-white/30 hover:text-white'
+              : 'bg-[#070709]/75 text-gray-300 border-white/10 hover:border-white/30 hover:text-white'
           }`}
           title="Toggle free 360-degree drag orbit"
         >
-          {orbitMode ? '✓ 360° ORBIT: ACTIVE' : '↺ 360° ORBIT'}
+          <RotateCw className="w-3 h-3" />
+          <span>{orbitMode ? 'ORBIT: ON' : '360° ORBIT'}</span>
         </button>
       </div>
     </footer>
