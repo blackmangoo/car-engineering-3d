@@ -64,101 +64,104 @@ export function FerrariStorySections({ onScrollProgress }: FerrariStorySectionsP
         cinemaMode ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      {/* ── 01. HERO SECTION (Left Docked, Car completely visible) ──────────── */}
+      {/* ── 01. HERO SECTION (Left Docked, Editorial Open Layout) ───────────── */}
       <section
         id="section-hero"
         className="min-h-screen flex items-center px-6 md:px-16 lg:px-24 py-28 pointer-events-none"
       >
-        <div className="w-full max-w-md pointer-events-auto bg-[#070709]/75 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="flex items-center space-x-2 text-[10px] font-sans font-bold tracking-[0.2em] text-[#d91424] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#d91424] shadow-sm shadow-[#d91424]" />
+        <div className="w-full max-w-md pointer-events-auto">
+          {/* Subtle Stage Kicker */}
+          <div className="flex items-center space-x-2 text-[10px] font-mono tracking-[0.28em] text-[#d91424] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d91424] shadow-sm shadow-[#d91424]" />
             <span>STAGE 01 // OVERVIEW</span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-bold tracking-tight leading-tight mt-3">
-            {LAFERRARI_SECTIONS.hero.title}
+          {/* Monumental Italian Serif Headline */}
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-white font-light tracking-tight mt-2 leading-[1.05]">
+            L'ESSENZA DI <span className="italic font-normal">MARANELLO</span>
           </h1>
 
-          <p className="font-sans text-xs tracking-[0.18em] text-[#ffd200] uppercase font-semibold mt-1">
+          <p className="font-sans text-[11px] tracking-[0.22em] text-[#ffd200] uppercase font-semibold mt-1">
             {LAFERRARI_SECTIONS.hero.tagline}
           </p>
 
-          <p className="font-serif italic text-xs text-[#d1d5db] border-l-2 border-[#d91424] pl-3 my-4 leading-relaxed">
+          {/* Poetic Quote */}
+          <div className="border-l border-[#d91424] pl-4 my-6 text-xs text-gray-300 font-serif italic leading-relaxed">
             {LAFERRARI_SECTIONS.hero.quote}
-          </p>
+          </div>
 
-          <div className="space-y-2.5 text-xs text-[#9ca3af] leading-relaxed font-sans">
+          <div className="space-y-3 text-xs text-gray-400 font-sans leading-relaxed">
             {LAFERRARI_SECTIONS.hero.paragraphs.map((p, idx) => (
               <p key={idx}>{p}</p>
             ))}
           </div>
 
-          {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-white/10 font-sans">
+          {/* Refined Hairline Telemetry Grid (No chunky black boxes) */}
+          <div className="grid grid-cols-2 gap-y-4 gap-x-8 mt-8 pt-6 border-t border-white/10 font-sans">
             {LAFERRARI_SECTIONS.hero.metrics.map((m, idx) => (
-              <div key={idx} className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-                <span className="text-[10px] tracking-wider text-[#9ca3af] uppercase block">
+              <div key={idx} className="border-l border-white/15 pl-3">
+                <span className="text-[9px] font-mono tracking-[0.2em] text-gray-500 uppercase block">
                   {m.label}
                 </span>
-                <span className="text-xl font-bold font-mono text-white mt-0.5 block">
+                <span className="text-xl sm:text-2xl font-serif text-white font-light mt-0.5 block">
                   {m.value}{' '}
-                  <span className="text-xs text-[#d91424] font-normal">{m.unit}</span>
+                  <span className="text-xs font-mono text-[#d91424]">{m.unit}</span>
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 flex items-center space-x-2 text-[10px] font-mono text-[#9ca3af]">
-            <span className="animate-bounce">↓</span>
-            <span>SCROLL TO EXPLORE 360° REVOLUTION</span>
+          <div className="mt-8 flex items-center space-x-2 text-[10px] font-mono tracking-[0.16em] text-gray-500">
+            <span className="animate-bounce text-[#d91424]">↓</span>
+            <span>SCROLL TO REVOLVE IN 3D</span>
           </div>
         </div>
       </section>
 
-      {/* ── 02. AERODYNAMICS (Right Docked, Car visible in left center) ─────── */}
+      {/* ── 02. AERODYNAMICS (Right Docked, Clean Typography) ────────────────── */}
       <section
         id="section-aerodynamics"
         className="min-h-screen flex items-center justify-end px-6 md:px-16 lg:px-24 py-28 pointer-events-none"
       >
-        <div className="w-full max-w-md pointer-events-auto bg-[#070709]/75 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="flex items-center space-x-2 text-[10px] font-sans font-bold tracking-[0.2em] text-[#d91424] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#d91424]" />
+        <div className="w-full max-w-md pointer-events-auto">
+          <div className="flex items-center space-x-2 text-[10px] font-mono tracking-[0.28em] text-[#d91424] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d91424]" />
             <span>STAGE 02 // DYNAMICS</span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl text-white font-bold tracking-tight leading-tight mt-3">
-            {LAFERRARI_SECTIONS.aerodynamics.title}
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-light tracking-tight mt-2 leading-[1.05]">
+            AERODINAMICA <span className="italic font-normal">ATTIVA</span>
           </h2>
 
-          <p className="font-sans text-xs tracking-[0.18em] text-[#ffd200] uppercase font-semibold mt-1">
+          <p className="font-sans text-[11px] tracking-[0.22em] text-[#ffd200] uppercase font-semibold mt-1">
             {LAFERRARI_SECTIONS.aerodynamics.tagline}
           </p>
 
-          <div className="space-y-2.5 text-xs text-[#9ca3af] leading-relaxed font-sans mt-4">
+          <div className="space-y-3 text-xs text-gray-400 font-sans leading-relaxed mt-5">
             {LAFERRARI_SECTIONS.aerodynamics.paragraphs.map((p, idx) => (
               <p key={idx}>{p}</p>
             ))}
           </div>
 
-          {/* Technical Highlights */}
-          <div className="mt-5 space-y-2 pt-4 border-t border-white/10">
+          {/* Technical Highlights with Hairline Dividers */}
+          <div className="mt-6 space-y-3 pt-5 border-t border-white/10">
             {LAFERRARI_SECTIONS.aerodynamics.technicalHighlights.map((th, idx) => (
-              <div key={idx} className="bg-white/5 p-2.5 rounded-xl border border-white/5 text-xs">
-                <div className="font-bold text-white tracking-wide text-[11px]">{th.label}</div>
-                <div className="text-[10px] text-[#9ca3af] mt-0.5">{th.desc}</div>
+              <div key={idx} className="border-l border-white/15 pl-3 text-xs">
+                <div className="font-serif text-white text-sm font-semibold tracking-wide">{th.label}</div>
+                <div className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{th.desc}</div>
               </div>
             ))}
           </div>
 
-          {/* Metrics */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          {/* Downforce Metrics */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 mt-6 pt-5 border-t border-white/10">
             {LAFERRARI_SECTIONS.aerodynamics.metrics.slice(0, 2).map((m, idx) => (
-              <div key={idx} className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-                <span className="text-[9px] tracking-wider text-[#9ca3af] uppercase block">
+              <div key={idx} className="border-l border-white/15 pl-3">
+                <span className="text-[9px] font-mono tracking-[0.2em] text-gray-500 uppercase block">
                   {m.label}
                 </span>
-                <span className="text-lg font-bold font-mono text-white mt-0.5 block">
-                  {m.value} <span className="text-xs text-[#d91424]">{m.unit}</span>
+                <span className="text-xl sm:text-2xl font-serif text-white font-light mt-0.5 block">
+                  {m.value} <span className="text-xs font-mono text-[#d91424]">{m.unit}</span>
                 </span>
               </div>
             ))}
@@ -171,40 +174,40 @@ export function FerrariStorySections({ onScrollProgress }: FerrariStorySectionsP
         id="section-powertrain"
         className="min-h-screen flex items-center px-6 md:px-16 lg:px-24 py-28 pointer-events-none"
       >
-        <div className="w-full max-w-md pointer-events-auto bg-[#070709]/75 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="flex items-center space-x-2 text-[10px] font-sans font-bold tracking-[0.2em] text-[#d91424] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#d91424]" />
+        <div className="w-full max-w-md pointer-events-auto">
+          <div className="flex items-center space-x-2 text-[10px] font-mono tracking-[0.28em] text-[#d91424] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d91424]" />
             <span>STAGE 03 // POWERTRAIN</span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl text-white font-bold tracking-tight leading-tight mt-3">
-            {LAFERRARI_SECTIONS.powertrain.title}
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-light tracking-tight mt-2 leading-[1.05]">
+            PROPULSORE <span className="italic font-normal">HY-KERS</span>
           </h2>
 
-          <p className="font-sans text-xs tracking-[0.18em] text-[#ffd200] uppercase font-semibold mt-1">
+          <p className="font-sans text-[11px] tracking-[0.22em] text-[#ffd200] uppercase font-semibold mt-1">
             {LAFERRARI_SECTIONS.powertrain.tagline}
           </p>
 
-          <p className="font-serif italic text-xs text-[#d1d5db] border-l-2 border-[#ffd200] pl-3 my-4 leading-relaxed">
+          <div className="border-l border-[#ffd200] pl-4 my-6 text-xs text-gray-300 font-serif italic leading-relaxed">
             {LAFERRARI_SECTIONS.powertrain.quote}
-          </p>
+          </div>
 
-          <div className="space-y-2.5 text-xs text-[#9ca3af] leading-relaxed font-sans">
+          <div className="space-y-3 text-xs text-gray-400 font-sans leading-relaxed">
             {LAFERRARI_SECTIONS.powertrain.paragraphs.map((p, idx) => (
               <p key={idx}>{p}</p>
             ))}
           </div>
 
           {/* V12 Metrics */}
-          <div className="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-white/10 font-sans">
+          <div className="grid grid-cols-2 gap-y-4 gap-x-8 mt-8 pt-6 border-t border-white/10 font-sans">
             {LAFERRARI_SECTIONS.powertrain.metrics.map((m, idx) => (
-              <div key={idx} className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-                <span className="text-[9px] tracking-wider text-[#9ca3af] uppercase block">
+              <div key={idx} className="border-l border-white/15 pl-3">
+                <span className="text-[9px] font-mono tracking-[0.2em] text-gray-500 uppercase block">
                   {m.label}
                 </span>
-                <span className="text-lg font-bold font-mono text-white mt-0.5 block">
+                <span className="text-xl sm:text-2xl font-serif text-white font-light mt-0.5 block">
                   {m.value}{' '}
-                  <span className="text-xs text-[#ffd200] font-normal">{m.unit}</span>
+                  <span className="text-xs font-mono text-[#ffd200] font-normal">{m.unit}</span>
                 </span>
               </div>
             ))}
@@ -217,34 +220,34 @@ export function FerrariStorySections({ onScrollProgress }: FerrariStorySectionsP
         id="section-chassis"
         className="min-h-screen flex items-center justify-end px-6 md:px-16 lg:px-24 py-28 pointer-events-none"
       >
-        <div className="w-full max-w-md pointer-events-auto bg-[#070709]/75 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="flex items-center space-x-2 text-[10px] font-sans font-bold tracking-[0.2em] text-[#d91424] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#d91424]" />
+        <div className="w-full max-w-md pointer-events-auto">
+          <div className="flex items-center space-x-2 text-[10px] font-mono tracking-[0.28em] text-[#d91424] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d91424]" />
             <span>STAGE 04 // TELAIO</span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl text-white font-bold tracking-tight leading-tight mt-3">
-            {LAFERRARI_SECTIONS.chassis.title}
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-light tracking-tight mt-2 leading-[1.05]">
+            TELAIO IN <span className="italic font-normal">CARBONIO</span>
           </h2>
 
-          <p className="font-sans text-xs tracking-[0.18em] text-[#ffd200] uppercase font-semibold mt-1">
+          <p className="font-sans text-[11px] tracking-[0.22em] text-[#ffd200] uppercase font-semibold mt-1">
             {LAFERRARI_SECTIONS.chassis.tagline}
           </p>
 
-          <div className="space-y-2.5 text-xs text-[#9ca3af] leading-relaxed font-sans mt-4">
+          <div className="space-y-3 text-xs text-gray-400 font-sans leading-relaxed mt-5">
             {LAFERRARI_SECTIONS.chassis.paragraphs.map((p, idx) => (
               <p key={idx}>{p}</p>
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-white/10">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 mt-8 pt-6 border-t border-white/10">
             {LAFERRARI_SECTIONS.chassis.metrics.map((m, idx) => (
-              <div key={idx} className="bg-black/40 p-2.5 rounded-xl border border-white/5">
-                <span className="text-[9px] tracking-wider text-[#9ca3af] uppercase block">
+              <div key={idx} className="border-l border-white/15 pl-3">
+                <span className="text-[9px] font-mono tracking-[0.2em] text-gray-500 uppercase block">
                   {m.label}
                 </span>
-                <span className="text-lg font-bold font-mono text-white mt-0.5 block">
-                  {m.value} <span className="text-xs text-[#d91424]">{m.unit}</span>
+                <span className="text-xl sm:text-2xl font-serif text-white font-light mt-0.5 block">
+                  {m.value} <span className="text-xs font-mono text-[#d91424]">{m.unit}</span>
                 </span>
               </div>
             ))}
@@ -257,35 +260,35 @@ export function FerrariStorySections({ onScrollProgress }: FerrariStorySectionsP
         id="section-cockpit"
         className="min-h-screen flex items-center px-6 md:px-16 lg:px-24 py-28 pointer-events-none"
       >
-        <div className="w-full max-w-md pointer-events-auto bg-[#070709]/75 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="flex items-center space-x-2 text-[10px] font-sans font-bold tracking-[0.2em] text-[#d91424] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#d91424]" />
+        <div className="w-full max-w-md pointer-events-auto">
+          <div className="flex items-center space-x-2 text-[10px] font-mono tracking-[0.28em] text-[#d91424] uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d91424]" />
             <span>STAGE 05 // COCKPIT</span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl text-white font-bold tracking-tight leading-tight mt-3">
-            {LAFERRARI_SECTIONS.cockpit.title}
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-light tracking-tight mt-2 leading-[1.05]">
+            ABITACOLO & <span className="italic font-normal">ERGONOMIA</span>
           </h2>
 
-          <p className="font-sans text-xs tracking-[0.18em] text-[#ffd200] uppercase font-semibold mt-1">
+          <p className="font-sans text-[11px] tracking-[0.22em] text-[#ffd200] uppercase font-semibold mt-1">
             {LAFERRARI_SECTIONS.cockpit.tagline}
           </p>
 
-          <p className="font-serif italic text-xs text-[#d1d5db] border-l-2 border-[#d91424] pl-3 my-4 leading-relaxed">
+          <div className="border-l border-[#d91424] pl-4 my-6 text-xs text-gray-300 font-serif italic leading-relaxed">
             {LAFERRARI_SECTIONS.cockpit.quote}
-          </p>
+          </div>
 
-          <div className="space-y-2.5 text-xs text-[#9ca3af] leading-relaxed font-sans">
+          <div className="space-y-3 text-xs text-gray-400 font-sans leading-relaxed">
             {LAFERRARI_SECTIONS.cockpit.paragraphs.map((p, idx) => (
               <p key={idx}>{p}</p>
             ))}
           </div>
 
-          <div className="mt-5 space-y-2 pt-4 border-t border-white/10">
+          <div className="mt-6 space-y-3 pt-5 border-t border-white/10">
             {LAFERRARI_SECTIONS.cockpit.technicalHighlights.map((th, idx) => (
-              <div key={idx} className="bg-white/5 p-2.5 rounded-xl border border-white/5 text-xs">
-                <div className="font-bold text-white tracking-wide text-[11px]">{th.label}</div>
-                <div className="text-[10px] text-[#9ca3af] mt-0.5">{th.desc}</div>
+              <div key={idx} className="border-l border-white/15 pl-3 text-xs">
+                <div className="font-serif text-white text-sm font-semibold tracking-wide">{th.label}</div>
+                <div className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{th.desc}</div>
               </div>
             ))}
           </div>

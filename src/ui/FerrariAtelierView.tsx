@@ -6,18 +6,17 @@ export function FerrariAtelierView() {
   const setPaint = useFerrariStore((s) => s.setPaint);
   const orbitMode = useFerrariStore((s) => s.orbitMode);
   const toggleOrbitMode = useFerrariStore((s) => s.toggleOrbitMode);
-  const soundEnabled = useFerrariStore((s) => s.soundEnabled);
 
-  const handleRevEngine = () => {
-    if (!soundEnabled) {
-      useFerrariStore.getState().toggleSound();
-      ferrariSound.setEnabled(true);
-    }
-    // Simulate high-rev V12 throttle blip up to 9,000 RPM
-    ferrariSound.setRPM(8800);
-    setTimeout(() => {
-      ferrariSound.setRPM(2400);
-    }, 450);
+  const handlePlayStartup = () => {
+    ferrariSound.playStartup();
+  };
+
+  const handlePlayRev = () => {
+    ferrariSound.playRev();
+  };
+
+  const handlePlayDrive = () => {
+    ferrariSound.playDrive();
   };
 
   return (
@@ -36,12 +35,12 @@ export function FerrariAtelierView() {
           </p>
         </div>
 
-        {/* Orbit Mode & V12 Rev Buttons */}
-        <div className="flex items-center space-x-2.5">
+        {/* Orbit Mode & Authentic V12 Audio Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={toggleOrbitMode}
-            className={`px-4 py-2 rounded-full text-xs font-sans font-bold tracking-wider uppercase border transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-sans font-bold tracking-wider uppercase border transition-all cursor-pointer ${
               orbitMode
                 ? 'bg-[#d91424] text-white border-[#d91424] shadow-lg shadow-[#d91424]/40'
                 : 'bg-white/5 text-white border-white/15 hover:bg-white/10'
@@ -52,10 +51,29 @@ export function FerrariAtelierView() {
 
           <button
             type="button"
-            onClick={handleRevEngine}
-            className="px-4 py-2 rounded-full text-xs font-sans font-bold tracking-wider uppercase bg-[#ffd200] text-black hover:bg-[#ffe359] transition-all cursor-pointer shadow-lg shadow-[#ffd200]/25"
+            onClick={handlePlayStartup}
+            className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold tracking-wider uppercase bg-[#d91424] text-white hover:bg-[#ef1c2d] transition-all cursor-pointer shadow-md shadow-[#d91424]/30"
+            title="Start the 6.3L V12 engine"
+          >
+            ▶ IGNITION START
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePlayRev}
+            className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold tracking-wider uppercase bg-[#ffd200] text-black hover:bg-[#ffe359] transition-all cursor-pointer shadow-md shadow-[#ffd200]/25"
+            title="Loud 9,000 RPM V12 revs"
           >
             REV V12
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePlayDrive}
+            className="px-3.5 py-1.5 rounded-full text-xs font-sans font-bold tracking-wider uppercase bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-all cursor-pointer"
+            title="High-speed track pass"
+          >
+            TRACK FLYBY
           </button>
         </div>
       </div>

@@ -9,7 +9,7 @@ interface FerrariMasterSceneProps {
 export function FerrariMasterScene({ scrollProgress }: FerrariMasterSceneProps) {
   return (
     <>
-      {/* Studio Lighting & Ground Environment */}
+      {/* Studio Lighting & Ground Environment (Always rendered immediately) */}
       <StudioStage scrollProgress={scrollProgress} />
 
       {/* The 26MB Photorealistic Ferrari LaFerrari 3D Vehicle */}

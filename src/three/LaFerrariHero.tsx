@@ -62,6 +62,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           mat.color.setStyle(paint.hex);
           mat.metalness = paint.metalness;
           mat.roughness = paint.roughness;
+          mat.envMapIntensity = 1.4;
 
           if ('clearcoat' in mat) {
             (mat as unknown as { clearcoat: number; clearcoatRoughness: number }).clearcoat = 1.0;
@@ -86,6 +87,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
             mat.opacity = 0.35;
             mat.roughness = 0.02;
             mat.metalness = 0.1;
+            mat.envMapIntensity = 1.5;
           } else {
             // Xenon White LED projector bulbs & DRL light strip
             mat.color.setHex(0xf8fafc);
@@ -101,6 +103,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           mat.opacity = 0.72;
           mat.roughness = 0.06;
           mat.metalness = 0.25;
+          mat.envMapIntensity = 1.6;
           mat.needsUpdate = true;
         }
 
@@ -108,6 +111,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
         if (name.includes('carbon')) {
           mat.roughness = 0.45;
           mat.metalness = 0.75;
+          mat.envMapIntensity = 0.8;
           mat.needsUpdate = true;
         }
 
@@ -115,6 +119,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
         if (name.includes('rim') || name.includes('chrome')) {
           mat.metalness = 0.95;
           mat.roughness = 0.15;
+          mat.envMapIntensity = 1.3;
           mat.needsUpdate = true;
         }
 

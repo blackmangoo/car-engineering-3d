@@ -1,6 +1,6 @@
-import { useRef } from 'react';
+import { useRef, Suspense } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { useFerrariStore } from '@/state/useFerrariStore';
 import { useFrame } from '@react-three/fiber';
@@ -14,57 +14,45 @@ export function StudioStage({ scrollProgress }: StudioStageProps) {
   const activeChapter = useFerrariStore((s) => s.activeChapter);
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
-  // Dynamic camera positioning based on scroll chapter
+  // Smooth chapter-based camera vantage with open-space composition
   useFrame((state, delta) => {
     if (orbitMode || activeChapter === 'atelier') {
-      // User has full free orbit drag control
+      // In atelier or orbit mode, user has free interactive control
       return;
     }
 
     const cam = state.camera;
 
-    // Smooth chapter-based camera vantage with open-space composition
-    let targetX = 3.8;
-    let targetY = 1.4;
-    let targetZ = 4.2;
-    let lookX = -0.65; // Offsets target so car sits prominently in the open right half
+    // Cinematic camera angles tailored to Ferrari design highlights
+    let targetX = 4.2;
+    let targetY = 1.5;
+    let targetZ = 4.4;
     let lookY = 0.45;
 
     if (scrollProgress > 0.15 && scrollProgress <= 0.35) {
-      // Aerodynamics profile (Text on right -> car centered left)
-      targetX = 4.6;
+      // 02 Aerodynamics: Dynamic low side profile
+      targetX = 4.8;
       targetY = 1.1;
       targetZ = 1.4;
-      lookX = 0.65;
-      lookY = 0.42;
     } else if (scrollProgress > 0.35 && scrollProgress <= 0.55) {
-      // Powertrain V12 (Text on left -> car centered right, elevated rear hatch)
-      targetX = 2.0;
-      targetY = 2.3;
-      targetZ = -3.2;
-      lookX = -0.55;
-      lookY = 0.55;
+      // 03 Powertrain V12: Elevated rear 3/4 angle
+      targetX = 2.2;
+      targetY = 2.2;
+      targetZ = -3.4;
     } else if (scrollProgress > 0.55 && scrollProgress <= 0.75) {
-      // Chassis & Rear diffuser (Text on right -> car centered left)
+      // 04 Chassis & Diffuser: Low rear 3/4 angle
       targetX = 3.8;
-      targetY = 0.95;
+      targetY = 1.0;
       targetZ = -3.8;
-      lookX = 0.55;
-      lookY = 0.42;
     } else if (scrollProgress > 0.75) {
-      // Technical specs & Atelier overview
-      targetX = 4.2;
-      targetY = 1.6;
-      targetZ = 4.0;
-      lookX = 0;
-      lookY = 0.45;
+      // 05 Cockpit / Specs / Atelier: High 3/4 perspective overview
+      targetX = 4.4;
+      targetY = 1.7;
+      targetZ = 4.2;
     }
 
     cam.position.lerp(new THREE.Vector3(targetX, targetY, targetZ), delta * 2.8);
-    if (controlsRef.current) {
-      controlsRef.current.target.lerp(new THREE.Vector3(lookX, lookY, 0), delta * 3.2);
-      controlsRef.current.update();
-    }
+    cam.lookAt(0, lookY, 0);
   });
 
   return (
@@ -75,17 +63,25 @@ export function StudioStage({ scrollProgress }: StudioStageProps) {
         enableDamping
         dampingFactor={0.06}
         maxPolarAngle={Math.PI / 2 - 0.02}
-        minDistance={2.5}
+        minDistance={2.4}
         maxDistance={8.5}
         enabled={orbitMode || activeChapter === 'atelier'}
       />
 
-      {/* ── Studio Key Lighting ─────────────────────────────────────────────── */}
-      <ambientLight intensity={0.55} />
+      {/* ── 0. SEAMLESS STUDIO BACKDROP COLOR ─────────────────────────────── */}
+      <color attach="background" args={['#070709']} />
+
+      {/* ── 1. STUDIO HDRI ENVIRONMENT MAP (Key for photorealistic clearcoat reflections) ── */}
+      <Suspense fallback={null}>
+        <Environment files="/hdri/studio_small_09_1k.hdr" environmentIntensity={1.2} />
+      </Suspense>
+
+      {/* ── 2. STUDIO DIRECTIONAL LIGHTING RIG ───────────────────────────────── */}
+      <ambientLight intensity={0.4} />
 
       {/* Overhead Key Softbox */}
       <directionalLight
-        position={[4, 8, 4]}
+        position={[4, 9, 4]}
         intensity={1.8}
         color="#ffffff"
         castShadow
@@ -96,56 +92,46 @@ export function StudioStage({ scrollProgress }: StudioStageProps) {
 
       {/* Cool Sculptural Rim Light from Rear */}
       <directionalLight
-        position={[-6, 5, -5]}
+        position={[-6, 6, -5]}
         intensity={1.2}
         color="#e0f2fe"
       />
 
       {/* Warm Frontal Nose Fill Light */}
       <directionalLight
-        position={[0, 2.5, 6]}
-        intensity={0.7}
+        position={[0, 2.8, 6]}
+        intensity={0.8}
         color="#fffbeb"
       />
 
-      {/* Low Ground Floor Fill Light */}
+      {/* Low Underbody Floor Glow */}
       <pointLight
-        position={[0, 0.4, 0]}
-        intensity={0.6}
-        distance={6}
+        position={[0, 0.35, 0]}
+        intensity={0.5}
+        distance={5}
         color="#ffffff"
       />
 
-      {/* ── Asphalt Studio Floor with Ground Shadows ─────────────────────────── */}
-      <group position={[0, -0.001, 0]}>
-        {/* Floor Surface */}
+      {/* ── 3. PHOTOREALISTIC GROUND CONTACT SHADOWS ─────────────────────────── */}
+      <ContactShadows
+        position={[0, 0.001, 0]}
+        opacity={0.85}
+        scale={8.5}
+        blur={2.0}
+        far={3.0}
+        resolution={1024}
+        color="#000000"
+      />
+
+      {/* ── 4. SEAMLESS INFINITE STUDIO CYCLORAMA FLOOR ─────────────────────── */}
+      <group position={[0, -0.005, 0]}>
         <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[45, 45]} />
+          <planeGeometry args={[180, 180]} />
           <meshStandardMaterial
-            color="#08080a"
-            roughness={0.75}
-            metalness={0.25}
+            color="#070709"
+            roughness={0.85}
+            metalness={0.08}
           />
-        </mesh>
-
-        {/* Soft Ground Contact Shadow under Ferrari tires & chassis */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]}>
-          <planeGeometry args={[2.5, 4.9]} />
-          <meshBasicMaterial
-            color="#000000"
-            transparent
-            opacity={0.75}
-          />
-        </mesh>
-
-        {/* Minimalist Studio Floor Grid Line Rings */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
-          <ringGeometry args={[3.2, 3.22, 64]} />
-          <meshBasicMaterial color="#d91424" transparent opacity={0.2} />
-        </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
-          <ringGeometry args={[5.2, 5.22, 64]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.08} />
         </mesh>
       </group>
     </>
