@@ -70,8 +70,33 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
           mat.needsUpdate = true;
         }
 
-        // Tinted Canopy Glass & Engine Hatch
-        if (name.includes('glass')) {
+        // Front Headlights: Crystal-clear outer lens + Xenon White LED projectors (Zero red tint)
+        if (
+          name.includes('head_light') ||
+          name.includes('headlight') ||
+          name.includes('front headlight') ||
+          name.includes('head lights glasses') ||
+          name.includes('red_light') ||
+          name.includes('run_lights')
+        ) {
+          if (name.includes('glasses') || name.includes('glass')) {
+            // Crystal-clear optical headlight lens
+            mat.color.setHex(0xffffff);
+            mat.transparent = true;
+            mat.opacity = 0.35;
+            mat.roughness = 0.02;
+            mat.metalness = 0.1;
+          } else {
+            // Xenon White LED projector bulbs & DRL light strip
+            mat.color.setHex(0xf8fafc);
+            mat.metalness = 0.9;
+            mat.roughness = 0.1;
+            mat.emissive.setHex(0xe2e8f0);
+            mat.emissiveIntensity = 0.6;
+          }
+          mat.needsUpdate = true;
+        } else if (name.includes('glass')) {
+          // Tinted Canopy Glass & Engine Hatch
           mat.transparent = true;
           mat.opacity = 0.72;
           mat.roughness = 0.06;
