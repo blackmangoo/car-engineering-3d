@@ -155,12 +155,12 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
     }
 
     // Target rotation based on chapter & scroll progression
-    // 0.0 = Front 3/4 beauty view
+    // 0.0 = Front 3/4 beauty view (Classic Ferrari stance)
     // 0.2 = Side aerodynamic profile
     // 0.4 = Rear 3/4 looking at active diffuser & spoiler
     // 0.6 = Elevated angle looking at V12 engine hatch
     // 0.8 = Full 360-degree orbit
-    const targetRotationY = Math.PI + scrollProgress * Math.PI * 2.5;
+    const targetRotationY = 4.19 + scrollProgress * Math.PI * 2.5;
 
     // Smooth lerp damping to ensure buttery 60 FPS transitions
     carGroupRef.current.rotation.y = THREE.MathUtils.lerp(
@@ -175,7 +175,7 @@ export function LaFerrariHero({ scrollProgress }: LaFerrariHeroProps) {
   });
 
   return (
-    <group ref={carGroupRef} position={[0, 0, 0]}>
+    <group ref={carGroupRef} position={[0.45, 0, 0]}>
       <primitive
         object={scene}
         scale={[transform.scale, transform.scale, transform.scale]}

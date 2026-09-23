@@ -9,7 +9,10 @@ import { useFerrariStore } from '@/state/useFerrariStore';
 
 // In-canvas viewport sync to ensure 100% full-bleed resolution across all browser resize events
 function CanvasResizeBridge() {
-  const { gl, camera } = useThree();
+  console.log('[R3F Bridge] Mounting CanvasResizeBridge...');
+  const { gl, camera, scene } = useThree();
+  console.log('[R3F Bridge] useThree gl:', !!gl, 'camera:', !!camera, 'scene:', !!scene);
+  (window as unknown as { __threeState: unknown }).__threeState = { gl, camera, scene };
   useFrame(() => {
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -48,7 +51,10 @@ export default function App() {
             powerPreference: 'high-performance',
           }}
           camera={{ position: [4.2, 1.6, 4.4], fov: 35, near: 0.1, far: 100 }}
-          onCreated={() => setLoaded(true)}
+          onCreated={(state) => {
+            (window as unknown as { __threeState: unknown }).__threeState = state;
+            setLoaded(true);
+          }}
         >
           <CanvasResizeBridge />
           <FerrariMasterScene scrollProgress={scrollProgress} />

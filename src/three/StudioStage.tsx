@@ -1,6 +1,6 @@
-import { useRef, Suspense } from 'react';
+import { useRef } from 'react';
 import * as THREE from 'three';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import { OrbitControls, ContactShadows } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { useFerrariStore } from '@/state/useFerrariStore';
 import { useFrame } from '@react-three/fiber';
@@ -71,13 +71,8 @@ export function StudioStage({ scrollProgress }: StudioStageProps) {
       {/* ── 0. SEAMLESS STUDIO BACKDROP COLOR ─────────────────────────────── */}
       <color attach="background" args={['#070709']} />
 
-      {/* ── 1. STUDIO HDRI ENVIRONMENT MAP (Key for photorealistic clearcoat reflections) ── */}
-      <Suspense fallback={null}>
-        <Environment files="/hdri/studio_small_09_1k.hdr" environmentIntensity={1.2} />
-      </Suspense>
-
-      {/* ── 2. STUDIO DIRECTIONAL LIGHTING RIG ───────────────────────────────── */}
-      <ambientLight intensity={0.4} />
+      {/* ── 1. STUDIO DIRECTIONAL LIGHTING RIG (Instant, Zero Suspense Lag) ── */}
+      <ambientLight intensity={0.65} />
 
       {/* Overhead Key Softbox */}
       <directionalLight
